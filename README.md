@@ -69,7 +69,7 @@ Instagram tokens last 60 days. The `refresh-token` workflow renews them twice a 
 3. Copy the token.
 
 ### 6. Add the secrets
-Secrets are how the bot gets your passwords without them ever appearing in the code. You create **8 separate secrets** (9 if you add Pexels), one per row below. Each one has two boxes:
+Secrets are how the bot gets your passwords without them ever appearing in the code. You create **8 separate secrets** (9 with the optional Pixabay key), one per row below. Each one has two boxes:
 - **Name:** type the exact name from the left column (capitals and underscores matter, because the bot looks secrets up by name).
 - **Secret:** paste *only* the value, with no quotes and no labels.
 
@@ -85,13 +85,15 @@ For each row: **Settings → Secrets and variables → Actions → New repositor
 | `IG_USER_ID` | from step 4 |
 | `IG_ACCESS_TOKEN` | from step 4 |
 | `GH_PAT` | from step 5 |
-| `PEXELS_API_KEY` *(optional)* | free key from pexels.com/api, for stock videos + pop-up images |
+| `PIXABAY_API_KEY` *(optional)* | free key from pixabay.com/api/docs, for stock videos + pop-up images |
 
-### 6b. Pexels (optional, for stock backgrounds and pop-up images)
-1. Sign up free at pexels.com, then open **pexels.com/api** → **Your API key**.
-2. Add it as the secret `PEXELS_API_KEY`.
+### 6b. Pixabay (optional, for stock backgrounds and pop-up images)
+1. Sign up free at pixabay.com, then open **pixabay.com/api/docs**. Your key is shown on that page (in the `key` parameter section) once you're logged in.
+2. Add it as the secret `PIXABAY_API_KEY`.
 
-Without it, reels still work: they use your own clips (see *Video styles*) or a plain gradient, and scenes with a Pexels `image` keyword just skip the pop-up.
+(A Pexels key also works as `PEXELS_API_KEY` if you have one. Pexels has paused new keys, though.)
+
+Without a key, reels still work: they use your own clips (see *Video styles*) or a plain gradient, and scenes with a keyword `image` just skip the pop-up.
 
 ### 7. Personalise and test
 1. In `config/profiles/insurance.yaml`, set `handle:` to your Instagram handle. Change colours or posting days if you like.
@@ -134,8 +136,8 @@ You can write your own scripts in this format, ask Claude to write them, or mix 
 ```
 - `voice` is what's spoken. In the **background** style, the subtitles come from this, word by word.
 - `text` is the on-screen line for the **slides** style (keep it short; `*asterisks*` colour words). It's still required, so a reel can be switched between styles.
-- `"image"` *(optional, per scene)*: a pop-up picture while that scene is spoken. Use keywords for a Pexels photo (`"image": "hospital bill"`) or your own file (`"image": "file:my-chart.png"` from `content/assets/images/`).
-- `"background"` *(optional, per script)*: Pexels search words for the background video (`"background": "hospital corridor"`), or one of your clips (`"background": "file:parkour1.mp4"`).
+- `"image"` *(optional, per scene)*: a pop-up picture while that scene is spoken. Use keywords for a stock photo (`"image": "hospital bill"`) or your own file (`"image": "file:my-chart.png"` from `content/assets/images/`).
+- `"background"` *(optional, per script)*: stock-video search words for the background video (`"background": "hospital corridor"`), or one of your clips (`"background": "file:parkour1.mp4"`).
 - `"video_style"` *(optional)*: `"slides"` to use the slideshow for just this reel.
 - `style`: `hook` / `cta` (used by the slides style).
 - The profile's disclaimer footer and default hashtags are added to every caption automatically.
@@ -151,7 +153,7 @@ Set `video_style:` in the profile.
 Where the background comes from, in order:
 1. The script's `"background": "file:..."` clip, if set.
 2. **Your own clips** in `content/assets/backgrounds/`. Each reel picks one at random and starts from a random point, so a single 3–5 minute recording gives lots of variety. **Minecraft parkour:** record your own gameplay (Mojang allows this). Don't use other creators' videos; Instagram can mute or remove reels that reuse them. Keep files under ~90 MB each (GitHub's limit is 100 MB).
-3. **Pexels stock video**, using the script's `"background"` words or the profile's `pexels_query`.
+3. **Free stock video** (Pixabay), using the script's `"background"` words or the profile's `stock_query`.
 4. A plain gradient, if none of the above.
 
 To stop using your own clips without deleting them, set `use_own_clips: false` under `background:` in the profile. Adjust darkness with `dim:` and subtitle size with `caption_size:` under `style:`.
