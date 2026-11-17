@@ -2,15 +2,48 @@
   "id": "2026-11-02-waiting-period",
   "profile": "insurance",
   "title": "Why medical cards have a waiting period",
+  "background": "hourglass time",
   "scenes": [
-    {"style": "hook", "text": "You just bought a medical card. Can you claim *tomorrow*?", "voice": "You just bought a medical card. Can you make a claim tomorrow?"},
-    {"text": "Usually *not* for illnesses. There's a *waiting period*.", "voice": "For most illnesses, usually not. There's something called a waiting period."},
-    {"text": "A waiting period is time after you start the policy when some claims *aren't covered* yet.", "voice": "A waiting period is a stretch of time after your policy starts, when certain claims are not covered yet."},
-    {"text": "Why? So people don't buy cover *only after* they get sick.", "sub": "That keeps premiums fair for everyone.", "voice": "Why does it exist? So people don't wait until they're already sick to buy cover. That keeps things fair for everyone in the pool."},
-    {"text": "Accidents are often covered *right away*. Some illnesses wait *longer*.", "sub": "The exact periods are in your policy wording.", "voice": "Accidents are often covered right away, while some illnesses have a longer wait. The exact periods are written in your policy."},
-    {"text": "Lesson: get covered *before* you need it.", "voice": "The lesson? The best time to get covered is before you need it."},
-    {"style": "cta", "text": "Follow for more *insurance basics*.", "voice": "Follow for more insurance basics."}
+    {
+      "style": "hook",
+      "text": "You just bought a medical card. Can you claim *tomorrow*?",
+      "voice": "You just bought a medical card. Can you make a claim tomorrow?"
+    },
+    {
+      "text": "Usually *not* for illnesses. There's a *waiting period*.",
+      "voice": "For most illnesses, usually not. There's something called a waiting period.",
+      "image": "hourglass"
+    },
+    {
+      "text": "A waiting period is time after you start the policy when some claims *aren't covered* yet.",
+      "voice": "A waiting period is a stretch of time after your policy starts, when certain claims are not covered yet."
+    },
+    {
+      "text": "Why? So people don't buy cover *only after* they get sick.",
+      "sub": "That keeps premiums fair for everyone.",
+      "voice": "Why does it exist? So people don't wait until they're already sick to buy cover. That keeps things fair for everyone in the pool.",
+      "image": "doctor patient"
+    },
+    {
+      "text": "Accidents are often covered *right away*. Some illnesses wait *longer*.",
+      "sub": "The exact periods are in your policy wording.",
+      "voice": "Accidents are often covered right away, while some illnesses have a longer wait. The exact periods are written in your policy.",
+      "image": "ambulance"
+    },
+    {
+      "text": "Lesson: get covered *before* you need it.",
+      "voice": "The lesson? The best time to get covered is before you need it."
+    },
+    {
+      "style": "cta",
+      "text": "Follow for more *insurance basics*.",
+      "voice": "Follow for more insurance basics."
+    }
   ],
   "caption": "Why can't you claim for an illness the day after buying a medical card? ⏳\n\nMost policies have a waiting period, a stretch of time after the policy starts when some claims aren't covered yet. It stops people buying cover only after they get sick.\n\nAccidents are often covered right away. Check your own policy for the exact periods.",
-  "hashtags": ["#waitingperiod", "#medicalcard", "#healthinsurance"]
+  "hashtags": [
+    "#waitingperiod",
+    "#medicalcard",
+    "#healthinsurance"
+  ]
 }

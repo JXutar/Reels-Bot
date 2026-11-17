@@ -2,15 +2,48 @@
   "id": "2026-11-03-term-vs-whole-life",
   "profile": "insurance",
   "title": "Term vs whole life, the core idea",
+  "background": "family walking park",
   "scenes": [
-    {"style": "hook", "text": "Term or whole life? Here's the idea in *30 seconds*.", "voice": "Term life or whole life? Here's the core idea in thirty seconds."},
-    {"text": "*Term life* covers you for a set period.", "sub": "Like 20 years, or until a certain age.", "voice": "Term life covers you for a set period of time, like twenty years, or until a certain age."},
-    {"text": "If the term ends and nothing happened, the cover *ends*.", "voice": "If the term ends and nothing happened, the cover simply ends."},
-    {"text": "*Whole life* is designed to cover you for *life*.", "sub": "It often builds a cash value over time.", "voice": "Whole life is designed to cover you for your whole life, and it often builds up a cash value over time."},
-    {"text": "Term: usually *cheaper*, simple protection. Whole life: usually *costs more*, longer-term.", "voice": "Term is usually cheaper and simpler. Whole life usually costs more, but it's built for the long term."},
-    {"text": "Neither is \"better\". It depends on *what you need it for*.", "voice": "Neither one is better. It depends on what you need the cover for, and for how long."},
-    {"style": "cta", "text": "Follow to learn *one concept* at a time.", "voice": "Follow to learn one insurance concept at a time."}
+    {
+      "style": "hook",
+      "text": "Term or whole life? Here's the idea in *30 seconds*.",
+      "voice": "Term life or whole life? Here's the core idea in thirty seconds."
+    },
+    {
+      "text": "*Term life* covers you for a set period.",
+      "sub": "Like 20 years, or until a certain age.",
+      "voice": "Term life covers you for a set period of time, like twenty years, or until a certain age.",
+      "image": "calendar"
+    },
+    {
+      "text": "If the term ends and nothing happened, the cover *ends*.",
+      "voice": "If the term ends and nothing happened, the cover simply ends."
+    },
+    {
+      "text": "*Whole life* is designed to cover you for *life*.",
+      "sub": "It often builds a cash value over time.",
+      "voice": "Whole life is designed to cover you for your whole life, and it often builds up a cash value over time.",
+      "image": "elderly couple smiling"
+    },
+    {
+      "text": "Term: usually *cheaper*, simple protection. Whole life: usually *costs more*, longer-term.",
+      "voice": "Term is usually cheaper and simpler. Whole life usually costs more, but it's built for the long term."
+    },
+    {
+      "text": "Neither is \"better\". It depends on *what you need it for*.",
+      "voice": "Neither one is better. It depends on what you need the cover for, and for how long.",
+      "image": "family together"
+    },
+    {
+      "style": "cta",
+      "text": "Follow to learn *one concept* at a time.",
+      "voice": "Follow to learn one insurance concept at a time."
+    }
   ],
   "caption": "Term vs whole life, without the jargon 🛡️\n\nTerm life: covers you for a set period. Usually cheaper and simpler.\nWhole life: designed to cover you for life, often with a cash value. Usually costs more.\n\nNeither is \"better\". It depends on what you need cover for, and for how long.",
-  "hashtags": ["#lifeinsurance", "#termlife", "#wholelife"]
+  "hashtags": [
+    "#lifeinsurance",
+    "#termlife",
+    "#wholelife"
+  ]
 }

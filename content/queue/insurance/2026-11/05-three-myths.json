@@ -2,14 +2,45 @@
   "id": "2026-11-05-three-myths",
   "profile": "insurance",
   "title": "3 insurance myths young adults believe",
+  "background": "young people city",
   "scenes": [
-    {"style": "hook", "text": "3 insurance myths *young adults* believe.", "voice": "Here are three insurance myths a lot of young adults believe."},
-    {"text": "Myth 1: \"I'm young and healthy, I *don't need it*.\"", "sub": "Health can change, and buying later can cost more.", "voice": "Myth one. I'm young and healthy, so I don't need it. But health can change, and buying later can cost more, or come with exclusions."},
-    {"text": "Myth 2: \"My *company insurance* is enough.\"", "sub": "It usually stops when you leave the job.", "voice": "Myth two. My company insurance is enough. Group cover usually stops when you leave the job, and the limits may be lower than you think."},
-    {"text": "Myth 3: \"Insurers *never* pay claims.\"", "sub": "Claims are checked against the policy terms.", "voice": "Myth three. Insurers never pay claims. In reality, claims are checked against the policy terms, so honest disclosure and understanding your cover matter a lot."},
-    {"text": "The fix: know *what you're covered for*.", "voice": "The fix for all three? Know exactly what you're covered for, and what you're not."},
-    {"style": "cta", "text": "Follow for *myth-busting* every week.", "voice": "Follow for more myth busting every week."}
+    {
+      "style": "hook",
+      "text": "3 insurance myths *young adults* believe.",
+      "voice": "Here are three insurance myths a lot of young adults believe."
+    },
+    {
+      "text": "Myth 1: \"I'm young and healthy, I *don't need it*.\"",
+      "sub": "Health can change, and buying later can cost more.",
+      "voice": "Myth one. I'm young and healthy, so I don't need it. But health can change, and buying later can cost more, or come with exclusions.",
+      "image": "young man running"
+    },
+    {
+      "text": "Myth 2: \"My *company insurance* is enough.\"",
+      "sub": "It usually stops when you leave the job.",
+      "voice": "Myth two. My company insurance is enough. Group cover usually stops when you leave the job, and the limits may be lower than you think.",
+      "image": "office workers"
+    },
+    {
+      "text": "Myth 3: \"Insurers *never* pay claims.\"",
+      "sub": "Claims are checked against the policy terms.",
+      "voice": "Myth three. Insurers never pay claims. In reality, claims are checked against the policy terms, so honest disclosure and understanding your cover matter a lot.",
+      "image": "insurance documents"
+    },
+    {
+      "text": "The fix: know *what you're covered for*.",
+      "voice": "The fix for all three? Know exactly what you're covered for, and what you're not."
+    },
+    {
+      "style": "cta",
+      "text": "Follow for *myth-busting* every week.",
+      "voice": "Follow for more myth busting every week."
+    }
   ],
   "caption": "3 insurance myths young adults believe 🚫\n\n1. \"I'm young and healthy, I don't need it.\" Health can change, and buying later can cost more.\n2. \"My company insurance is enough.\" Group cover usually stops when you leave.\n3. \"Insurers never pay claims.\" Claims are checked against the policy terms, so honest disclosure matters.\n\nWhich one did you believe?",
-  "hashtags": ["#insurancemyths", "#youngadults", "#moneytips"]
+  "hashtags": [
+    "#insurancemyths",
+    "#youngadults",
+    "#moneytips"
+  ]
 }
