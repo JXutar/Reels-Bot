@@ -69,9 +69,13 @@ Instagram tokens last 60 days. The `refresh-token` workflow renews them twice a 
 3. Copy the token.
 
 ### 6. Add the secrets
-In your repo: **Settings → Secrets and variables → Actions → New repository secret**. Add these:
+Secrets are how the bot gets your passwords without them ever appearing in the code. You create **8 separate secrets**, one per row below. Each one has two boxes:
+- **Name:** type the exact name from the left column (capitals and underscores matter, because the bot looks secrets up by name).
+- **Secret:** paste *only* the value, with no quotes and no labels.
 
-| Secret | Value |
+For each row: **Settings → Secrets and variables → Actions → New repository secret** → fill in Name + Secret → **Add secret**. Afterwards, the page should list exactly these 8 names under **Repository secrets**:
+
+| Name (type exactly) | Secret (paste the value) |
 |---|---|
 | `TELEGRAM_BOT_TOKEN` | from step 2 |
 | `TELEGRAM_CHAT_ID` | from step 2 |
