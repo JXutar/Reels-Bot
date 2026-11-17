@@ -19,7 +19,7 @@ video_style: background
 
 background:
   use_own_clips: true        # use clips in content/assets/backgrounds/ first (e.g. your Minecraft parkour)
-  pexels_query: "city lights night"   # otherwise search Pexels stock video (needs PEXELS_API_KEY secret)
+  stock_query: "city lights night"    # otherwise search free stock video (needs PIXABAY_API_KEY secret)
   dim: 0.45                  # darken the background so subtitles stay readable (0 = none, 0.7 = very dark)
 
 schedule:
@@ -34,7 +34,7 @@ voice:
 
 style:
   series_label: "INSURANCE 101"
-  handle: "@jx_mlg777"    # shown at the bottom of every slide
+  handle: "@your.handle"    # shown at the bottom of every slide
   bg_top: "#0F2A44"
   bg_bottom: "#071624"
   text: "#FFFFFF"
