@@ -38,14 +38,29 @@ With Instagram Login, Instagram downloads the video from a public link. It can't
 2. From the dashboard, copy **Cloud name**, **API key** and **API secret**.
 
 ### 4. Instagram API (Meta developer app)
-Your account must be **public** and **professional** (Creator works).
-1. Go to developers.facebook.com → **My Apps** → **Create app**. When asked for a use case, choose the one for **managing content on Instagram** (Instagram API).
-2. Open **Instagram → API setup with Instagram business login**.
-3. If asked, add your account as an **Instagram tester** under *App roles*, then accept the invite in the Instagram app (*Settings → Website permissions / Apps and websites → Tester invites*).
-4. Under **Generate access tokens**, click **Add account**, log in with your Instagram account, and approve the permissions (`instagram_business_basic`, `instagram_business_content_publish`).
-5. Copy the **access token** and the **Instagram user ID** shown next to your account.
+Your Instagram account must be **public** and **professional** (Creator works). You also need a Facebook account to sign in to Meta's developer site.
 
-You can keep the app in development mode. You don't need App Review to post to your own account. Meta's screens change often, so if a button is named differently, ask Claude and we'll walk through it together.
+**a) Become a Meta developer**
+1. Go to developers.facebook.com and click **Get Started** (top right). "My Apps" only appears once you're logged in and registered.
+2. Log in with Facebook, accept the terms, and verify your phone. Choose any role ("Developer" or "Student").
+   - **No SMS arriving?** Choose **Malaysia (+60)** and type the number *without* the leading 0. If it still doesn't come, first add and confirm your number in Facebook (*Settings → Accounts Center → Personal details → Contact info*), then come back. If you've pressed Resend many times, wait a few hours before trying again.
+
+**b) Create the app**
+1. Go to **developers.facebook.com/apps** → **Create app**. For the use case, pick the **Instagram API** one (managing content on Instagram).
+2. In the app dashboard, go to **Use cases** → **Customize** (Instagram API) → **API setup with Unified login**. Don't use the "Facebook login" option, because it needs a Facebook Page.
+
+**c) Create a business portfolio (Meta requires one)**
+1. On that page, click **+ Business portfolio** → **Create a new business portfolio**. Any name works (e.g. "Reel Bot"). It's free, private, and doesn't change your profiles.
+2. In the portfolio's settings (business.facebook.com → **Settings → Accounts → Instagram accounts**), make sure your Instagram account is listed. Then click **Assign people** → choose yourself → turn on **Full control** → **Assign**.
+3. Back on **API setup with Unified login**, select your portfolio. The orange "Business portfolio selection is mandatory" warning should disappear.
+
+**d) Get your token and ID**
+1. Under **Generate access tokens**, click **Add account** / **Generate token** next to your Instagram account. Log in and allow the permissions (`instagram_business_basic`, `instagram_business_content_publish`).
+2. If Meta asks, accept the **tester invite** in the Instagram app (*Settings → Website permissions → Apps and websites → Tester invites*), then generate the token again.
+3. Copy the **access token** → secret `IG_ACCESS_TOKEN`. Keep it private: anyone with it can post to your account.
+4. Copy the **Instagram user ID** shown next to your account (a long number starting with 1784…) → secret `IG_USER_ID`. The **Check setup** workflow in step 7 confirms both are right.
+
+You can keep the app in development mode, since posting to your own account doesn't need App Review. Meta renames buttons often, so if something looks different, send Claude a screenshot.
 
 ### 5. Token auto-renewal (so it never expires)
 Instagram tokens last 60 days. The `refresh-token` workflow renews them twice a month, but it needs permission to update your secrets:
@@ -89,6 +104,8 @@ In your repo: **Settings → Secrets and variables → Actions → New repositor
 ---
 
 ## Script format
+
+You can write your own scripts in this format, ask Claude to write them, or mix both. Everything in the queue goes through the same Telegram review. To have Claude format your idea, just send your rough notes.
 
 ```json
 {
