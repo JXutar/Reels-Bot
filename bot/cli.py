@@ -245,9 +245,17 @@ def cmd_check(args) -> None:
     if args.online:
         from . import instagram, telegram
         for profile in config.active_profiles():
-            me = instagram.whoami(config.env(profile["instagram"]["token_secret"]))
+            ig = profile["instagram"]
+            token, uid = config.env(ig["token_secret"]), config.env(ig["user_id_secret"])
+            print(f"[{profile['name']}] token looks like: {token[:4]}... ({len(token)} characters)")
+            if " " in token or len(token) < 100:
+                print("  ⚠️ That looks too short or has spaces. Copy the whole token again from the Meta page.")
+            me = instagram.whoami(token, uid)
             print(f"[{profile['name']}] Instagram OK: @{me.get('username')} ({me.get('account_type')}), "
                   f"user_id {me.get('user_id')}")
+            if str(me.get("user_id")) != uid.strip():
+                print(f"  ⚠️ IG_USER_ID secret is {uid}, but the token belongs to user_id {me.get('user_id')}. "
+                      f"Set IG_USER_ID to {me.get('user_id')}.")
         telegram.send_text("👋 Reels bot connected. You'll get reels to review here.")
         print("Telegram OK: test message sent.")
 

@@ -11,7 +11,13 @@ import time
 
 import requests
 
-GRAPH = "https://graph.instagram.com/v26.0"
+# Instagram Login tokens (start with "IG") use graph.instagram.com.
+# Facebook-issued tokens (start with "EAA") use graph.facebook.com. Same endpoints otherwise.
+# No version in the URL = the app's default (newest when the app was created).
+
+
+def _graph(token: str) -> str:
+    return "https://graph.facebook.com" if token.startswith("EAA") else "https://graph.instagram.com"
 
 
 def _check(r: requests.Response) -> dict:
@@ -29,6 +35,7 @@ def publish_reel(user_id: str, token: str, video_url: str, caption: str,
         body["trial_params"] = {"graduation_strategy": graduation}
     else:
         body["share_to_feed"] = True
+    GRAPH = _graph(token)
     container = _check(requests.post(f"{GRAPH}/{user_id}/media", json=body, headers=headers, timeout=60))["id"]
 
     # Instagram downloads and processes the video; poll until ready (docs: about once a minute, max ~5 min).
@@ -47,11 +54,19 @@ def publish_reel(user_id: str, token: str, video_url: str, caption: str,
 
 
 def refresh_token(token: str) -> dict:
-    """Long-lived tokens last 60 days; refreshing gives a fresh 60 days."""
-    return _check(requests.get(f"{GRAPH.rsplit('/', 1)[0]}/refresh_access_token",
+    """Long-lived tokens last 60 days; refreshing gives a fresh 60 days (token must be 24h+ old)."""
+    if token.startswith("EAA"):
+        raise RuntimeError("This is a Facebook-issued token; it can't be auto-renewed this way. "
+                           "Generate a new one on the Meta page before it expires.")
+    return _check(requests.get("https://graph.instagram.com/refresh_access_token",
                                params={"grant_type": "ig_refresh_token", "access_token": token}, timeout=30))
 
 
-def whoami(token: str) -> dict:
-    return _check(requests.get(f"{GRAPH}/me", params={"fields": "user_id,username,account_type"},
-                               headers={"Authorization": f"Bearer {token}"}, timeout=30))
+def whoami(token: str, user_id: str) -> dict:
+    headers = {"Authorization": f"Bearer {token}"}
+    if token.startswith("EAA"):
+        data = _check(requests.get(f"{_graph(token)}/{user_id}", params={"fields": "id,username"},
+                                   headers=headers, timeout=30))
+        return {"user_id": data.get("id"), "username": data.get("username"), "account_type": "via Facebook token"}
+    return _check(requests.get(f"{_graph(token)}/me", params={"fields": "user_id,username,account_type"},
+                               headers=headers, timeout=30))

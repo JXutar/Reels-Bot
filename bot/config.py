@@ -59,7 +59,10 @@ def queued_scripts(profile_name: str) -> list[Path]:
 
 
 def env(name: str, required: bool = True) -> str:
-    value = os.environ.get(name, "").strip()
+    value = os.environ.get(name, "").strip().strip('"').strip("'").strip()
+    for prefix in ("Bearer ", "bearer "):  # forgive a pasted "Bearer " prefix
+        if value.startswith(prefix):
+            value = value[len(prefix):].strip()
     if required and not value:
         raise SystemExit(f"Missing environment variable / GitHub secret: {name}")
     return value
