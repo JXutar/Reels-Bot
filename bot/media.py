@@ -3,13 +3,13 @@
 Background video, in order of preference:
   1. script "background": "file:my-clip.mp4"   -> content/assets/backgrounds/my-clip.mp4
   2. any clip in content/assets/backgrounds/   (e.g. your own Minecraft parkour recording)
-  3. Pexels stock video search (needs PEXELS_API_KEY), using the script's "background" keywords
-     or the profile's default search
+  3. Stock video search, using the script's "background" keywords or the profile's default search.
+     Uses Pixabay (PIXABAY_API_KEY) or Pexels (PEXELS_API_KEY), whichever key is set.
   4. nothing found -> a plain gradient (the renderer handles this)
 
 Pop-up image for a scene ("image" field):
   "file:chart.png"  -> content/assets/images/chart.png
-  "hospital bill"   -> Pexels photo search (needs PEXELS_API_KEY)
+  "hospital bill"   -> stock photo search (Pixabay or Pexels key needed)
 """
 from __future__ import annotations
 
@@ -29,6 +29,14 @@ CACHE = OUT_DIR / "_cache"
 
 def _pexels_key() -> str:
     return os.environ.get("PEXELS_API_KEY", "").strip()
+
+
+def _pixabay_key() -> str:
+    return os.environ.get("PIXABAY_API_KEY", "").strip()
+
+
+def stock_available() -> bool:
+    return bool(_pixabay_key() or _pexels_key())
 
 
 def _download(url: str, dest: Path) -> Path:
@@ -67,13 +75,33 @@ def pick_background(script: dict, profile: dict, rng: random.Random) -> tuple[Pa
             clip = rng.choice(clips)
             return clip, f"your clip {clip.name}"
 
-    query = want or bg_cfg.get("pexels_query", "")
-    if query and _pexels_key():
-        try:
-            return _pexels_video(query, rng), f"Pexels video for '{query}'"
-        except Exception as e:
-            print(f"  (Pexels video search failed: {e})")
+    query = want or bg_cfg.get("stock_query") or bg_cfg.get("pexels_query", "")
+    if query and stock_available():
+        for name, fn, key in (("Pixabay", _pixabay_video, _pixabay_key()), ("Pexels", _pexels_video, _pexels_key())):
+            if not key:
+                continue
+            try:
+                return fn(query, rng), f"{name} video for '{query}'"
+            except Exception as e:
+                print(f"  ({name} video search failed: {e})")
     return None, "plain gradient"
+
+
+def _pixabay_video(query: str, rng: random.Random) -> Path:
+    r = requests.get("https://pixabay.com/api/videos/",
+                     params={"key": _pixabay_key(), "q": query[:100], "safesearch": "true", "per_page": 20},
+                     timeout=30)
+    r.raise_for_status()
+    hits = [h for h in r.json().get("hits", []) if h.get("duration", 0) >= 6]
+    if not hits:
+        raise RuntimeError("no results")
+    # prefer portrait clips (less cropping), otherwise any
+    portrait = [h for h in hits if any(v.get("height", 0) > v.get("width", 1) for v in h["videos"].values() if v)]
+    hit = rng.choice((portrait or hits)[:8])
+    sizes = [v for v in hit["videos"].values() if v and v.get("url")]
+    sizes = [v for v in sizes if max(v.get("width", 0), v.get("height", 0)) <= 1920] or sizes
+    best = max(sizes, key=lambda v: v.get("width", 0) * v.get("height", 0))
+    return _download(best["url"], CACHE / f"pixabay-video-{hit['id']}.mp4")
 
 
 def _pexels_video(query: str, rng: random.Random) -> Path:
@@ -104,6 +132,8 @@ def image_card(spec: str, rng: random.Random, out: Path, max_w: int = 860, max_h
             if not src.exists():
                 print(f"  (image file not found: {src})")
                 return None
+        elif _pixabay_key():
+            src = _pixabay_photo(spec, rng)
         elif _pexels_key():
             src = _pexels_photo(spec, rng)
         else:
@@ -149,3 +179,17 @@ def _pexels_photo(query: str, rng: random.Random) -> Path:
         raise RuntimeError(f"no Pexels photo for '{query}'")
     photo = rng.choice(photos[:4])
     return _download(photo["src"]["large"], CACHE / f"pexels-photo-{photo['id']}.jpg")
+
+
+def _pixabay_photo(query: str, rng: random.Random) -> Path:
+    r = requests.get("https://pixabay.com/api/",
+                     params={"key": _pixabay_key(), "q": query[:100], "image_type": "photo",
+                             "orientation": "horizontal", "safesearch": "true", "per_page": 6},
+                     timeout=30)
+    r.raise_for_status()
+    hits = r.json().get("hits", [])
+    if not hits:
+        raise RuntimeError(f"no Pixabay photo for '{query}'")
+    hit = rng.choice(hits[:4])
+    url = hit.get("largeImageURL") or hit.get("webformatURL")
+    return _download(url, CACHE / f"pixabay-photo-{hit['id']}.jpg")

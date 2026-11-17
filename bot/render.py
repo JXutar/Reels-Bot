@@ -1,7 +1,7 @@
 """Turns a script into a vertical reel (1080x1920, H.264/AAC, 30 fps - Instagram Reels spec).
 
 Two styles, chosen by `video_style` in the profile (or per script):
-  background  - background video (your clips or Pexels stock) + word-by-word subtitles
+  background  - background video (your clips or free stock video) + word-by-word subtitles
                 + pop-up images per scene                                  [default]
   slides      - the original slideshow: one designed slide per scene
 """
