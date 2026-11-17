@@ -31,6 +31,50 @@ def synthesize(text: str, out: Path, voice: str, rate: str = "+0%", fallback: st
     raise RuntimeError(f"Text-to-speech failed: {last_error}")
 
 
+async def _edge_words(text: str, voice: str, rate: str, out: Path) -> list[tuple[str, float, float]]:
+    import edge_tts
+
+    words = []
+    comm = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+    with open(out, "wb") as f:
+        async for chunk in comm.stream():
+            if chunk["type"] == "audio":
+                f.write(chunk["data"])
+            elif chunk["type"] == "WordBoundary":
+                start = chunk["offset"] / 1e7
+                words.append((chunk["text"], start, start + chunk["duration"] / 1e7))
+    return words
+
+
+def _even_words(text: str, total: float) -> list[tuple[str, float, float]]:
+    """Fallback timing: spread words across the clip by length."""
+    words = text.split()
+    weights = [len(w) + 2 for w in words]
+    t, out, scale = 0.05, [], (total - 0.1) / max(1, sum(weights))
+    for w, wt in zip(words, weights):
+        out.append((w.strip(".,!?;:"), t, t + wt * scale))
+        t += wt * scale
+    return out
+
+
+def synthesize_with_words(text: str, out: Path, voice: str, rate: str = "+0%", fallback: str | None = None,
+                          dummy: bool = False) -> list[tuple[str, float, float]]:
+    """Make the voiceover and return (word, start_sec, end_sec) for each spoken word."""
+    if dummy:
+        synthesize(text, out, voice, dummy=True)
+        return _even_words(text, duration(out))
+    last_error = None
+    for v in [voice] + ([fallback] if fallback else []):
+        for _attempt in range(3):
+            try:
+                words = asyncio.run(_edge_words(text, v, rate, out))
+                if out.exists() and out.stat().st_size > 0:
+                    return words or _even_words(text, duration(out))
+            except Exception as e:
+                last_error = e
+    raise RuntimeError(f"Text-to-speech failed: {last_error}")
+
+
 def duration(path: Path) -> float:
     result = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                              "-of", "default=nw=1:nk=1", str(path)], capture_output=True, text=True, check=True)
