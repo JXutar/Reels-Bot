@@ -1,0 +1,48 @@
+# Content profile: insurance concept lessons.
+# Copy this file to make a new profile (e.g. study-tips.yaml) and change what you need.
+
+name: insurance
+description: Short English lessons that explain insurance concepts simply.
+
+instagram:
+  # Names of the GitHub secrets that hold this account's credentials.
+  # A second profile on another Instagram account would use e.g. IG2_USER_ID / IG2_ACCESS_TOKEN.
+  user_id_secret: IG_USER_ID
+  token_secret: IG_ACCESS_TOKEN
+  trial_reel: true          # false = post as a normal reel (use until the account qualifies)
+  graduation: MANUAL        # MANUAL or SS_PERFORMANCE
+
+schedule:
+  days: [Wed]               # posting days (1 per week ~ 5 scripts per month)
+  hour: 20                  # local hour to post (24h). 20 = 8pm
+  max_per_day: 1            # reels posted per posting day (the next one goes ~1 hour later)
+
+voice:
+  name: en-US-AndrewNeural  # run `edge-tts --list-voices` to see options
+  rate: "+6%"               # speaking speed
+  fallback: en-US-GuyNeural
+
+style:
+  series_label: "INSURANCE 101"
+  handle: "@your.handle"    # shown at the bottom of every slide
+  bg_top: "#0F2A44"
+  bg_bottom: "#071624"
+  text: "#FFFFFF"
+  muted: "#9FB3C8"
+  accent: "#F5B942"         # colour for *highlighted* words
+  font_bold: Inter-Bold
+  font_regular: Inter-Medium
+  music: ""                 # optional: path to a royalty-free mp3 in content/assets/
+  music_volume: 0.10
+
+caption:
+  footer: "General education only, not financial advice. Always check your own policy wording."
+  default_hashtags: ["#insurance101", "#financialliteracy", "#malaysia", "#personalfinance"]
+
+# Rules I follow when writing scripts for this profile (kept here so they travel with the profile).
+rules:
+  - Explain general insurance concepts only.
+  - Never name a specific product, insurer, premium, or projected return.
+  - No promises of payouts or guarantees; point people to their own policy wording.
+  - 20-40 seconds of narration, 5-7 scenes, one idea per scene.
+  - Open with a hook question or surprising statement; close with a soft call to follow.

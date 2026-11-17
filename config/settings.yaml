@@ -1,0 +1,7 @@
+# Which content profiles are switched on. Each profile lives in config/profiles/<name>.yaml
+# and reads scripts from content/queue/<name>/.
+active_profiles:
+  - insurance
+
+# Timezone used for the posting schedule.
+timezone: Asia/Kuala_Lumpur

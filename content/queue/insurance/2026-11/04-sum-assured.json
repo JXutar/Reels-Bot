@@ -1,0 +1,16 @@
+{
+  "id": "2026-11-04-sum-assured",
+  "profile": "insurance",
+  "title": "What sum assured means",
+  "scenes": [
+    {"style": "hook", "text": "\"Sum assured\" sounds fancy. It's *simple*.", "voice": "Sum assured sounds like a fancy term. It's actually simple."},
+    {"text": "Sum assured is the amount the policy is set to *pay out*.", "voice": "The sum assured is the amount of money your policy is set to pay out."},
+    {"text": "It's paid when a *covered event* happens.", "sub": "Like death or a covered critical illness, depending on the plan.", "voice": "It's paid when a covered event happens, like death, or a covered critical illness, depending on the plan."},
+    {"text": "A bigger sum assured usually means a *bigger premium*.", "voice": "A bigger sum assured usually means a bigger premium."},
+    {"text": "Ask: *how much* would my family need, and for *how long*?", "voice": "So the real question is, how much would your family need, and for how long?"},
+    {"text": "Think debts, daily expenses, and *years of income*.", "voice": "Think about debts, daily expenses, and how many years of income they'd need to replace."},
+    {"style": "cta", "text": "Follow for more *insurance words*, explained.", "voice": "Follow for more insurance words, explained simply."}
+  ],
+  "caption": "What does \"sum assured\" actually mean? 💡\n\nIt's the amount your policy is set to pay out when a covered event happens. A bigger sum assured usually means a bigger premium.\n\nA useful question: how much would my family need, and for how long?",
+  "hashtags": ["#sumassured", "#lifeinsurance", "#insurancebasics"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "2026-11-01-deductible",
+  "profile": "insurance",
+  "title": "What is a deductible?",
+  "scenes": [
+    {"style": "hook", "text": "Your insurance *won't* pay the first part of your bill?", "voice": "Did you know your insurance might not pay the first part of your hospital bill?"},
+    {"text": "That first part is called a *deductible*.", "voice": "That first part has a name. It's called a deductible."},
+    {"text": "It's the amount *you* pay before insurance starts paying.", "sub": "Some plans call it an excess.", "voice": "A deductible is the amount you pay yourself, before your insurance starts covering the rest. Some plans call it an excess."},
+    {"text": "Example: bill of *RM5,000*, deductible of *RM1,000*", "sub": "You pay RM1,000. The plan covers the rest, up to its limits.", "voice": "Say your bill is five thousand ringgit, and your deductible is one thousand. You pay the first thousand, and the plan covers the rest, up to its limits."},
+    {"text": "Higher deductible = *lower* premium. Lower deductible = *higher* premium.", "voice": "Here's the trade off. A higher deductible usually means a lower premium. A lower deductible usually means you pay more each month."},
+    {"text": "Pick one you could *actually pay* in an emergency.", "voice": "So choose a deductible you could actually afford to pay if something happened tomorrow."},
+    {"style": "cta", "text": "Follow for one *insurance concept* at a time.", "voice": "Follow for more insurance concepts, explained simply."}
+  ],
+  "caption": "What's a deductible, and why does it change your premium? 🧾\n\nA deductible is the amount you pay first, before your insurance covers the rest. Higher deductible → usually lower premium. Lower deductible → usually higher premium.\n\nThe right one is an amount you could actually pay in an emergency.",
+  "hashtags": ["#deductible", "#medicalcard", "#insurancetips"]
+}
