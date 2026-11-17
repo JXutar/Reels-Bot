@@ -1,5 +1,71 @@
 {
   "telegram_offset": 182075629,
-  "items": {},
+  "items": {
+    "2026-11-01-deductible": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-17T07:45:59+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 8,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901556/reels-bot/2026-11-01-deductible.mp4",
+      "public_id": "reels-bot/2026-11-01-deductible"
+    },
+    "2026-11-02-waiting-period": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-17T07:47:28+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 9,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901646/reels-bot/2026-11-02-waiting-period.mp4",
+      "public_id": "reels-bot/2026-11-02-waiting-period"
+    },
+    "2026-11-03-term-vs-whole-life": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-17T07:48:29+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 10,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901707/reels-bot/2026-11-03-term-vs-whole-life.mp4",
+      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
+    },
+    "2026-11-04-sum-assured": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-17T07:49:28+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 11,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901765/reels-bot/2026-11-04-sum-assured.mp4",
+      "public_id": "reels-bot/2026-11-04-sum-assured"
+    },
+    "2026-11-05-three-myths": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-17T07:50:34+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 12,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901831/reels-bot/2026-11-05-three-myths.mp4",
+      "public_id": "reels-bot/2026-11-05-three-myths"
+    }
+  },
   "last_publish": {}
 }
