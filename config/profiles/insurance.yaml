@@ -12,6 +12,16 @@ instagram:
   trial_reel: true          # false = post as a normal reel (use until the account qualifies)
   graduation: MANUAL        # MANUAL or SS_PERFORMANCE
 
+# How reels look:
+#   background = background video + word-by-word subtitles + pop-up images (default)
+#   slides     = the original slideshow style
+video_style: background
+
+background:
+  use_own_clips: true        # use clips in content/assets/backgrounds/ first (e.g. your Minecraft parkour)
+  pexels_query: "city lights night"   # otherwise search Pexels stock video (needs PEXELS_API_KEY secret)
+  dim: 0.45                  # darken the background so subtitles stay readable (0 = none, 0.7 = very dark)
+
 schedule:
   days: [Wed]               # posting days (1 per week ~ 5 scripts per month)
   hour: 20                  # local hour to post (24h). 20 = 8pm
@@ -24,7 +34,7 @@ voice:
 
 style:
   series_label: "INSURANCE 101"
-  handle: "@jx_mlg777"    # shown at the bottom of every slide
+  handle: "@your.handle"    # shown at the bottom of every slide
   bg_top: "#0F2A44"
   bg_bottom: "#071624"
   text: "#FFFFFF"
@@ -32,6 +42,8 @@ style:
   accent: "#F5B942"         # colour for *highlighted* words
   font_bold: Inter-Bold
   font_regular: Inter-Medium
+  caption_size: 92          # subtitle size
+  caption_uppercase: true
   music: ""                 # optional: path to a royalty-free mp3 in content/assets/
   music_volume: 0.10
 
