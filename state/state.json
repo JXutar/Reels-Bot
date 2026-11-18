@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075629,
+  "telegram_offset": 182075647,
   "items": {
     "2026-11-01-deductible": {
       "history": [
@@ -58,9 +58,13 @@
         {
           "status": "pending_review",
           "at": "2026-11-17T07:50:34+00:00"
+        },
+        {
+          "status": "approved",
+          "at": "2026-11-18T08:39:04+00:00"
         }
       ],
-      "status": "pending_review",
+      "status": "approved",
       "profile": "insurance",
       "telegram_message_id": 12,
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901831/reels-bot/2026-11-05-three-myths.mp4",
