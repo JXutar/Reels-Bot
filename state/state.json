@@ -62,14 +62,24 @@
         {
           "status": "approved",
           "at": "2026-11-18T08:39:04+00:00"
+        },
+        {
+          "status": "published",
+          "at": "2026-11-18T14:15:31+00:00"
         }
       ],
-      "status": "approved",
+      "status": "published",
       "profile": "insurance",
       "telegram_message_id": 12,
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901831/reels-bot/2026-11-05-three-myths.mp4",
-      "public_id": "reels-bot/2026-11-05-three-myths"
+      "public_id": "reels-bot/2026-11-05-three-myths",
+      "media_id": "18078560495756671"
     }
   },
-  "last_publish": {}
+  "last_publish": {
+    "insurance": {
+      "date": "2026-11-18",
+      "count": 1
+    }
+  }
 }
