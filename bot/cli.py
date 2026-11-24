@@ -108,8 +108,12 @@ def _resolve_profile(word: str) -> dict | None:
     return None
 
 
-def handle_idea(text: str) -> None:
-    """'/idea story: a town where...' -> AI writes a script file into the queue."""
+IDEA_ATTEMPTS = 3
+
+
+def handle_idea(text: str, state: dict | None = None, attempt: int = 1) -> None:
+    """'/idea story: a town where...' -> AI writes a script file into the queue.
+    If the AI is slow or down, the idea is kept and retried at the next checks (up to IDEA_ATTEMPTS)."""
     global NEEDS_RENDER
     from . import writer
 
@@ -132,7 +136,8 @@ def handle_idea(text: str) -> None:
     if not writer.available():
         _notify("⚠️ /idea needs an AI writer. Add a GEMINI_API_KEY secret (free), then try again.")
         return
-    _notify(f"📝 Writing a new {profile['name']} reel" + (f" about: {body}" if body else " (topic of my choice)") + "…")
+    if attempt == 1:
+        _notify(f"📝 Writing a new {profile['name']} reel" + (f" about: {body}" if body else " (topic of my choice)") + "…")
     existing = {s["id"] for s, _p, _ in all_scripts()}
     examples = config.queued_scripts(profile["name"])
     example = None
@@ -143,7 +148,12 @@ def handle_idea(text: str) -> None:
         script = writer.write_script(body, profile, existing, example)
     except Exception as e:
         traceback.print_exc()
-        _notify(f"⚠️ Couldn't write that one: {e}")
+        if state is not None and attempt < IDEA_ATTEMPTS:
+            state.setdefault("idea_queue", []).append({"text": text, "attempts": attempt})
+            if attempt == 1:
+                _notify("⏳ The AI is slow right now. I'll keep your idea and try again at the next check.")
+        else:
+            _notify(f"⚠️ Couldn't write that one after {attempt} tries: {e}\nSend the /idea again later.")
         return
     folder = config.QUEUE_DIR / profile["name"] / "ideas"
     folder.mkdir(parents=True, exist_ok=True)
@@ -238,7 +248,7 @@ def handle_updates(state: dict) -> None:
                 continue
             text = (msg.get("text") or "").strip()
             if text.startswith("/idea"):
-                handle_idea(text)
+                handle_idea(text, state)
             elif text.startswith("/remake"):
                 parts = text.split()
                 if len(parts) == 2:
@@ -318,9 +328,17 @@ def due_profiles(state: dict, now: datetime) -> list[tuple[dict, datetime]]:
     return due
 
 
+def retry_ideas(state: dict) -> None:
+    """Ideas that failed at an earlier check get another go (before new messages are read)."""
+    queue, state["idea_queue"] = state.get("idea_queue", []), []
+    for item in queue:
+        handle_idea(item["text"], state, attempt=item.get("attempts", 1) + 1)
+
+
 def cmd_tick(args) -> None:
     state = st.load()
     try:
+        retry_ideas(state)
         handle_updates(state)
     finally:
         st.save(state)
