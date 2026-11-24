@@ -1,8 +1,10 @@
 """Review on your phone: the bot sends each new reel with Approve / Reject buttons.
 
 Commands you can send the bot:
+  /idea <idea>  AI writes the script, the bot makes the reel and sends it here
   /status       what's waiting, approved, and posted
   /post <id>    post an approved reel right now (skips the schedule)
+  /remake <id>  re-render a reel that isn't posted yet (or /remake all)
 """
 from __future__ import annotations
 
@@ -33,12 +35,17 @@ def send_text(text: str) -> None:
     _call("sendMessage", chat_id=chat_id(), text=text[:4000])
 
 
-def send_for_review(video: Path, item_id: str, script: dict, caption_text: str) -> int:
+def send_for_review(video: Path, item_id: str, script: dict, caption_text: str, auto_approved: bool = False) -> int:
     import json
 
-    keyboard = {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"approve|{item_id}"},
-                                     {"text": "❌ Reject", "callback_data": f"reject|{item_id}"}]]}
-    preview = f"🎬 {script['title']}\nID: {item_id}\n\n{caption_text}"
+    if auto_approved:
+        keyboard = {"inline_keyboard": [[{"text": "❌ Cancel (don't post)", "callback_data": f"reject|{item_id}"}]]}
+        head = "🎬 Auto-approved, posts on the next slot"
+    else:
+        keyboard = {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"approve|{item_id}"},
+                                         {"text": "❌ Reject", "callback_data": f"reject|{item_id}"}]]}
+        head = "🎬 New reel to review"
+    preview = f"{head}\n{script['title']}\nID: {item_id}\n\n{caption_text}"
     with open(video, "rb") as f:
         msg = _call("sendVideo", files={"video": f}, chat_id=chat_id(), caption=preview[:1000],
                     supports_streaming="true", reply_markup=json.dumps(keyboard))
