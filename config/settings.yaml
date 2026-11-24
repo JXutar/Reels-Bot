@@ -2,6 +2,10 @@
 # and reads scripts from content/queue/<name>/.
 active_profiles:
   - insurance
+  - stories
+
+# Which profile "/idea <text>" uses when you don't name one (e.g. "/idea story: ..." picks stories).
+idea_default_profile: insurance
 
 # Timezone used for the posting schedule.
 timezone: Asia/Kuala_Lumpur
