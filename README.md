@@ -17,6 +17,8 @@ Turns short lesson scripts into vertical videos (a background video with word-by
                                                                            you graduate it manually)
 ```
 
+**The short version:** send your bot `/idea in this town nobody can say "I" or they turn to stone`. A few minutes later the finished reel arrives on Telegram. Tap ✅, and it posts on schedule.
+
 **Cost: RM0.** GitHub Actions, edge-tts voices, Telegram, Cloudinary's free plan and the Instagram API are all free at this volume. The scripts (5 a month) come from Claude in your Pro plan, so there's no API bill.
 
 ---
@@ -85,6 +87,7 @@ For each row: **Settings → Secrets and variables → Actions → New repositor
 | `IG_USER_ID` | from step 4 |
 | `IG_ACCESS_TOKEN` | from step 4 |
 | `GH_PAT` | from step 5 |
+| `GEMINI_API_KEY` *(for /idea)* | free key from aistudio.google.com, see step 6c |
 | `PIXABAY_API_KEY` *(optional)* | free key from pixabay.com/api/docs, for stock videos + pop-up images |
 
 ### 6b. Pixabay (optional, for stock backgrounds and pop-up images)
@@ -95,6 +98,28 @@ For each row: **Settings → Secrets and variables → Actions → New repositor
 
 Without a key, reels still work: they use your own clips (see *Video styles*) or a plain gradient, and scenes with a keyword `image` just skip the pop-up.
 
+### 6c. Gemini (for `/idea`, free)
+1. Go to **aistudio.google.com** and sign in with a Google account.
+2. Click **Get API key → Create API key**, then copy it.
+3. Add it as the secret `GEMINI_API_KEY`.
+
+The bot automatically uses the newest free Gemini "flash" model, and falls back to another one if a model is busy or over its free limit. Note: on the free tier, Google may use what you send to improve its models. That's fine for public reel ideas, but don't put private client details in an idea.
+*(Optional: add an `ANTHROPIC_API_KEY` secret instead to have Claude write the scripts. It's paid per use, a few sen per script, and when present it's used instead of Gemini.)*
+
+### 6d. Make the bot check Telegram every 30 minutes (cron-job.org, free)
+GitHub's own hourly schedule often runs 5–12 hours late, so your `/idea` messages and taps could sit for hours. cron-job.org pokes the bot on time instead.
+1. **Make a token that can start workflows:** GitHub → *Settings → Developer settings → Fine-grained tokens → Generate new token*. Repository access: only `Reels-Bot`. Permissions: **Actions → Read and write**. Set the expiry to 1 year. Copy it. (This is a different token from `GH_PAT`, and it does **not** go into your repo secrets.)
+2. Sign up at **cron-job.org** → **Create cronjob**:
+   - **URL:** `https://api.github.com/repos/JXutar/Reels-Bot/actions/workflows/tick.yml/dispatches`
+   - **Schedule:** every 30 minutes
+   - **Advanced → Request method:** `POST`
+   - **Advanced → Headers:** add these three:
+     - `Authorization` = `Bearer <your token from step 1>`
+     - `Accept` = `application/vnd.github+json`
+     - `X-GitHub-Api-Version` = `2022-11-28`
+   - **Advanced → Request body:** `{"ref":"main"}`
+3. Save, then use **Test run**. A response of **204** means it worked, and a new *Tick* run appears in your Actions tab.
+
 ### 7. Personalise and test
 1. In `config/profiles/insurance.yaml`, set `handle:` to your Instagram handle. Change colours or posting days if you like.
 2. **Actions → Check setup → Run workflow.** You should get a 👋 message on Telegram.
@@ -103,6 +128,30 @@ Without a key, reels still work: they use your own clips (see *Video styles*) or
 > **Trial reels need a minimum follower count** (Instagram's threshold is reported as somewhere between 200 and 1,000 for professional accounts). If your account doesn't qualify yet, posting will fail with an error on Telegram. Set `trial_reel: false` in the profile to post normal reels until it does.
 
 ---
+
+## Making reels from an idea (the easy way)
+
+Send your Telegram bot:
+- `/idea <your idea>`: uses the default profile (insurance). Example: `/idea why your medical card has a co-payment`
+- `/idea story: <your idea>`: uses the **stories** profile. Example: `/idea story: in this town everybody cannot say the word I or they turn into stone`
+- `/idea story`: the AI picks a topic for you
+
+At the next check (within ~30 minutes with cron-job.org), the bot replies "📝 Writing…". The AI writes the script, the reel is rendered, and it arrives for you to approve. The script is also saved in `content/queue/<profile>/ideas/`, so you can see or edit what the AI wrote.
+
+**All Telegram commands:**
+| Command | What it does |
+|---|---|
+| `/idea ...` | write + make a new reel (see above) |
+| `/status` | what's waiting, approved, posted |
+| `/post <id>` | post an approved reel right now |
+| `/remake <id>` or `/remake all` | re-render reels that aren't posted yet (e.g. after changing the style) |
+| `/help` | list of commands |
+
+You can also remake from GitHub: **Actions → Render new reels → Run workflow**, then type an id or `all` in the **Remake** box.
+
+**Auto-approve:** set `auto_approve: true` under `review:` in a profile to skip the Approve tap for that profile. You'll still get the video with a ❌ Cancel button.
+
+**Missed slots:** if GitHub runs late and misses the posting time, the bot still posts at the next check, up to `catch_up_hours` (24 by default) after the slot.
 
 ## Monthly routine (about 5 minutes)
 
@@ -161,6 +210,15 @@ To stop using your own clips without deleting them, set `use_own_clips: false` u
 **`slides`:** the original slideshow, one designed slide per scene with a progress bar.
 
 ---
+
+## Profiles included
+
+| Profile | Use with | Posts | Style |
+|---|---|---|---|
+| `insurance` | `/idea ...` or `/idea ins: ...` | Wednesdays 8pm | lessons, disclaimer footer, calm stock footage |
+| `stories` | `/idea story: ...` | Saturdays 8pm | fiction with a twist, storyteller voice, your gameplay clips first |
+
+Both post to the same Instagram account by default. Change `days:`/`hour:` in each profile, or point `stories` at a second account (below).
 
 ## Switching topics or adding a second account
 
