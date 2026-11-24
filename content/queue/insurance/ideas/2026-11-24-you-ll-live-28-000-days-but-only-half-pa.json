@@ -1,0 +1,53 @@
+{
+  "id": "2026-11-24-you-ll-live-28-000-days-but-only-half-pa",
+  "profile": "insurance",
+  "title": "You'll live 28,000 days. But only half pay for them.",
+  "source_idea": "28,000 DAYS – Video Script\nLength: about 75 sec | Vertical 9:16\nVoice: calm, warm, like a friend explaining over coffee. Not salesy.\nMusic: soft piano or lo-fi. Short pause before the 4 questions.\n\nSCENE 1 (0:00–0:04)\nVisual: A big counter spins up to 28,000\nVO: \"You'll live about 28,000 days. But you'll only get paid for half of them.\"\nText: 28,000 days\n\nSCENE 2 (0:04–0:10)\nVisual: A long road splits into 4 blocks: 0–20, 20–40, 40–60, 60–80\nVO: \"Let's split a life into four parts.\"\nText: Your life in 4 parts\n\nSCENE 3 (0:10–0:17)\nVisual: Alex as a kid playing, then a student with books\nVO: \"Zero to twenty: you're growing up and studying. No income.\"\nText: 0–20: No income\n\nSCENE 4 (0:17–0:25)\nVisual: Alex at a first job, first car, first home, then a wedding photo\nVO: \"Twenty to forty: you start earning. First job, first car, maybe a first home and a family.\"\nText: 20–40: Earning\n\nSCENE 5 (0:25–0:32)\nVisual: Alex older: a promotion, a bigger car, kids growing taller\nVO: \"Forty to sixty: you earn more, upgrade more, and your kids grow up.\"\nText: 40–60: Earning\n\nSCENE 6 (0:32–0:38)\nVisual: Alex retired on a park bench, a piggy bank beside them\nVO: \"Sixty to eighty: most of us stop working and live on what we saved.\"\nText: 60–80: Little or no income\n\nSCENE 7 (0:38–0:46)\nVisual: The 4 blocks again, only the middle two light up, \"14,000\" appears\nVO: \"So about 14,000 working days have to pay for all 28,000. For you, and for your family.\"\nText: 14,000 days pay for 28,000\n\nSCENE 8 (0:46–0:50)\nVisual: Music dips. Alex looks at the camera.\nVO: \"That raises four questions.\"\nText: 4 questions\n\nSCENE 9 (0:50–0:54)\nVisual: Alex in a hospital bed, money floating out of a wallet\nVO: \"One: if you get sick, will your hard-earned money go to hospital bills instead of your future?\"\nText: 1. If you get sick?\n\nSCENE 10 (0:54–0:58)\nVisual: Alex unable to work, a paycheck icon fades away\nVO: \"Two: if you can't work, does your income stop too?\"\nText: 2. If you can't work?\n\nSCENE 11 (0:58–1:02)\nVisual: Alex's child in a graduation gown\nVO: \"Three: will your kids get the education you want for them?\"\nText: 3. Your kids' education?\n\nSCENE 12 (1:02–1:06)\nVisual: Older Alex on a beach vs older Alex counting coins\nVO: \"Four: will you retire comfortably, or just retire?\"\nText: 4. Your retirement?\n\nSCENE 13 (1:06–1:12)\nVisual: The 4 questions as a checklist, two ticked, two empty\nVO: \"Most people can't tick all four. That's normal. Knowing which one you can't answer is the first step.\"\nText: Which can you tick?\n\nSCENE 14 (1:12–1:15)\nVisual: Simple end card\nVO: (none)\nText: For general education only. Not financial advice.",
+  "background": "calm coffee shop",
+  "scenes": [
+    {
+      "voice": "You'll live about 28,000 days. But you'll only get paid for half of them.",
+      "text": "You'll live about *28,000 days*.",
+      "image": "calendar flipping",
+      "style": "hook"
+    },
+    {
+      "voice": "Let's split a life into four parts. From learning, to earning, to retirement.",
+      "text": "Your life in *4 parts*.",
+      "image": "road splitting"
+    },
+    {
+      "voice": "So about 14,000 working days have to pay for all 28,000. For you, and for your family.",
+      "text": "14,000 working days pay for *28,000*.",
+      "image": "family portrait"
+    },
+    {
+      "voice": "One: if you get sick, will your hard-earned savings go to bills instead of your future?",
+      "text": "1. If you *get sick*?",
+      "image": "hospital room"
+    },
+    {
+      "voice": "Two: if you can't work, does your income stop too?",
+      "text": "2. If you *can't work*?",
+      "image": "empty desk"
+    },
+    {
+      "voice": "Most people can't tick every box. Check your policy wording to see how your plan protects your working years.",
+      "text": "Check your *policy wording*.",
+      "image": "insurance contract"
+    },
+    {
+      "voice": "Follow for more simple insurance concepts explained clearly.",
+      "text": "Follow for *insurance basics*.",
+      "image": "smiling friend",
+      "style": "cta"
+    }
+  ],
+  "caption": "Ever wonder how your working years support your whole life? 🗓️\n\nOut of 28,000 days, only about half are spent earning. Always check your policy wording to understand how your coverage protects you and your family.",
+  "hashtags": [
+    "#insurancetips",
+    "#financialliteracy",
+    "#lifeplanning",
+    "#smartmoney"
+  ]
+}
