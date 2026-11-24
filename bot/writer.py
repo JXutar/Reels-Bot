@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from datetime import datetime
 
 import requests
@@ -110,25 +111,55 @@ def _gemini_models(key: str) -> list[str]:
     return ordered or ["gemini-flash-latest", "gemini-2.0-flash"]
 
 
+def _thinking_config(model: str) -> dict | None:
+    """Ask for little/no 'thinking' so short scripts come back fast (field names differ by generation)."""
+    nums = re.findall(r"\d+(?:\.\d+)?", model)
+    v = float(nums[0]) if nums else 0.0
+    if v >= 3:
+        return {"thinkingLevel": "low"}
+    if v >= 2.5:
+        return {"thinkingBudget": 0}
+    return None
+
+
+def _gemini_call(key: str, model: str, prompt: str, thinking: dict | None, timeout: int):
+    config = {"responseMimeType": "application/json", "temperature": 0.9}
+    if thinking:
+        config["thinkingConfig"] = thinking
+    return requests.post(f"{GEMINI}/models/{model}:generateContent", params={"key": key}, timeout=timeout,
+                         json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": config})
+
+
 def _gemini(prompt: str) -> str:
     key = os.environ["GEMINI_API_KEY"].strip()
-    errors = []
-    for model in _gemini_models(key)[:5]:
-        r = requests.post(f"{GEMINI}/models/{model}:generateContent", params={"key": key}, timeout=120,
-                          json={"contents": [{"parts": [{"text": prompt}]}],
-                                "generationConfig": {"responseMimeType": "application/json",
-                                                     "temperature": 0.9}})
-        data = r.json()
+    models = _gemini_models(key)
+    # try the best model first, then a fast "lite" one, then the rest
+    lite = [m for m in models if "lite" in m]
+    order = models[:1] + lite[:1] + [m for m in models[1:] if m not in lite[:1]]
+    errors, started = [], time.time()
+    for model in order[:5]:
+        if time.time() - started > 360:  # stay well inside the workflow's time limit
+            errors.append("gave up after 6 minutes")
+            break
+        thinking = _thinking_config(model)
+        try:
+            r = _gemini_call(key, model, prompt, thinking, timeout=75)
+            if r.status_code == 400 and thinking and "thinking" in r.text.lower():
+                r = _gemini_call(key, model, prompt, None, timeout=75)  # model doesn't accept that setting
+            data = r.json()
+        except (requests.RequestException, ValueError) as e:
+            errors.append(f"{model}: {type(e).__name__}")
+            continue  # timeout / connection problem -> next model
         if r.status_code >= 400:
             errors.append(f"{model}: {data.get('error', {}).get('message', r.status_code)}")
-            continue  # model unavailable / over free quota -> try the next one
+            continue  # unavailable / over the free quota -> next model
         parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-        text = "".join(p.get("text", "") for p in parts)
+        text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
         if text:
             print(f"  (written by {model})")
             return text
         errors.append(f"{model}: empty answer")
-    raise RuntimeError("Gemini failed: " + " | ".join(errors))
+    raise RuntimeError("Gemini didn't answer: " + " | ".join(errors))
 
 
 # ---------------------------------------------------------------- main entry
