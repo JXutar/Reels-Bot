@@ -5,6 +5,11 @@ on:
   push:
     paths: ["content/queue/**"]
   workflow_dispatch:
+    inputs:
+      remake:
+        description: "Remake reels that aren't posted yet: type a reel id, or 'all'. Leave empty to just render new scripts."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -27,8 +32,9 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: pip install -r requirements.txt
       - name: Render, host, and send to Telegram for review
-        run: python -m bot render
+        run: python -m bot render --remake "$REMAKE"
         env:
+          REMAKE: ${{ github.event.inputs.remake }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}

@@ -1,9 +1,11 @@
 name: Tick (read approvals, post on schedule)
 
-# Every hour: reads your Telegram Approve/Reject taps and posts an approved reel when a slot is due.
+# Reads Telegram (Approve/Reject taps, /idea, /remake, /status, /post), posts approved reels when a
+# slot is due, and renders any new reels that /idea or /remake created.
+# Runs hourly on GitHub's schedule (which can be late), and whenever cron-job.org triggers it (see README).
 on:
   schedule:
-    - cron: "17 * * * *"   # minute 17 of every hour (UTC); the posting time itself is set in the profile
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -16,7 +18,19 @@ concurrency:
 jobs:
   tick:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
+    env:
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,19 +38,19 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python -m bot tick
-        env:
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-      - name: Save state
+      - name: Read Telegram + post on schedule
+        id: tick
+        run: python -m bot tick
+      - name: Install ffmpeg (only when there's something to render)
+        if: steps.tick.outputs.render == 'true'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Render new reels from /idea or /remake
+        if: steps.tick.outputs.render == 'true'
+        run: python -m bot render
+      - name: Save state and new scripts
         if: always()
         run: |
           git config user.name "reels-bot"
           git config user.email "reels-bot@users.noreply.github.com"
-          git add state/state.json
+          git add state/ content/queue/
           git diff --cached --quiet || (git commit -m "Update state [skip ci]" && git pull --rebase && git push)
