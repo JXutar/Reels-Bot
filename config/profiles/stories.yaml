@@ -1,0 +1,62 @@
+# Content profile: short fiction stories ("story over gameplay" style).
+# Use it on Telegram with:  /idea story: in this town nobody can say "I" or they turn to stone
+
+name: stories
+aliases: [story, fiction, tale]
+description: Short, gripping fiction stories with a strange premise and a twist ending, narrated over background gameplay.
+
+instagram:
+  # Same account as insurance by default. To post stories to a different account,
+  # change these to IG2_USER_ID / IG2_ACCESS_TOKEN and add those secrets (see README).
+  user_id_secret: IG_USER_ID
+  token_secret: IG_ACCESS_TOKEN
+  trial_reel: true
+  graduation: MANUAL
+
+video_style: background
+
+background:
+  use_own_clips: true          # your gameplay clips in content/assets/backgrounds/ come first
+  stock_query: "satisfying abstract loop"
+  dim: 0.35
+
+schedule:
+  days: [Sat]
+  hour: 20
+  max_per_day: 1
+  catch_up_hours: 24
+
+review:
+  auto_approve: false
+
+voice:
+  name: en-US-ChristopherNeural   # deeper storyteller voice; run `edge-tts --list-voices` for others
+  rate: "+8%"
+  fallback: en-US-GuyNeural
+
+style:
+  series_label: "STORY TIME"
+  handle: "@jx_mlg777"
+  bg_top: "#1B1035"
+  bg_bottom: "#0A0614"
+  text: "#FFFFFF"
+  muted: "#B9A8D8"
+  accent: "#7CF2C8"
+  font_bold: Inter-Bold
+  font_regular: Inter-Medium
+  caption_size: 96
+  caption_uppercase: true
+  music: ""
+  music_volume: 0.10
+
+caption:
+  footer: ""
+  default_hashtags: ["#storytime", "#shortstory", "#fyp"]
+
+rules:
+  - Original fiction only. Don't retell existing books, films, games or other creators' stories.
+  - Open with the strange rule or premise in the very first line.
+  - Second person ("you") or a single main character; simple vocabulary; short sentences.
+  - Build tension scene by scene and end on a twist or an eerie last line.
+  - Keep it suitable for a general audience (no gore, no real people, nothing hateful).
+  - 30-45 seconds of narration.

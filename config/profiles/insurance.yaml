@@ -2,6 +2,7 @@
 # Copy this file to make a new profile (e.g. study-tips.yaml) and change what you need.
 
 name: insurance
+aliases: [ins, insurance101]   # words you can use in "/idea ins: ..."
 description: Short English lessons that explain insurance concepts simply.
 
 instagram:
@@ -26,6 +27,10 @@ schedule:
   days: [Wed]               # posting days (1 per week ~ 5 scripts per month)
   hour: 20                  # local hour to post (24h). 20 = 8pm
   max_per_day: 1            # reels posted per posting day (the next one goes ~1 hour later)
+  catch_up_hours: 24        # if GitHub runs late and misses the slot, still post within this many hours
+
+review:
+  auto_approve: false       # true = skip the Approve tap (you can still tap Cancel on Telegram)
 
 voice:
   name: en-US-AndrewNeural  # run `edge-tts --list-voices` to see options
@@ -34,7 +39,7 @@ voice:
 
 style:
   series_label: "INSURANCE 101"
-  handle: "@your.handle"    # shown at the bottom of every slide
+  handle: "@jx_mlg777"    # shown at the bottom of every slide
   bg_top: "#0F2A44"
   bg_bottom: "#071624"
   text: "#FFFFFF"
