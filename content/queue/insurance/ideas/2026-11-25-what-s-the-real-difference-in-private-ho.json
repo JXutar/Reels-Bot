@@ -1,0 +1,48 @@
+{
+  "id": "2026-11-25-what-s-the-real-difference-in-private-ho",
+  "profile": "insurance",
+  "title": "What's the real difference in private hospital care?",
+  "source_idea": "comparison between private hospital vs private hospital",
+  "background": "modern hospital hallway",
+  "scenes": [
+    {
+      "voice": "Ever wonder what actually changes when you choose a private hospital?",
+      "text": "Private hospital vs *private hospital*?",
+      "image": "hospital exterior",
+      "style": "hook"
+    },
+    {
+      "voice": "It's rarely just about the room. It often comes down to who makes the decisions on your care team.",
+      "text": "Who chooses your *care team*?",
+      "image": "doctor consulting"
+    },
+    {
+      "voice": "Some options let you pick your exact specialist. Others assign doctors based on availability.",
+      "text": "Pick your *exact specialist*?",
+      "image": "medical chart"
+    },
+    {
+      "voice": "Then there is how your bill gets settled. Direct billing versus paying first and claiming later.",
+      "text": "Direct billing or *pay and claim*?",
+      "image": "credit card machine"
+    },
+    {
+      "voice": "Always check your policy wording to understand your specific room and provider options.",
+      "text": "Check your *policy wording*.",
+      "image": "insurance contract"
+    },
+    {
+      "voice": "Follow for more simple insurance concepts explained clearly.",
+      "text": "Follow for *insurance basics*.",
+      "image": "smiling friend",
+      "style": "cta"
+    }
+  ],
+  "caption": "Not all private hospital setups are built the same. 🏥\n\nAlways check your policy wording to see how your specific health coverage handles specialist choices and billing.",
+  "hashtags": [
+    "#insurancetips",
+    "#healthinsurance",
+    "#smartmoney",
+    "#insurancebasics"
+  ]
+}
