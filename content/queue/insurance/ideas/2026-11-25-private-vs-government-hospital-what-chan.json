@@ -1,0 +1,48 @@
+{
+  "id": "2026-11-25-private-vs-government-hospital-what-chan",
+  "profile": "insurance",
+  "title": "Private vs Government Hospital: What changes?",
+  "source_idea": "Comparison between private hospital vs government hospital",
+  "background": "busy hospital hallway",
+  "scenes": [
+    {
+      "voice": "Ever wondered what really changes between a private and government hospital?",
+      "text": "Private vs *government hospital*?",
+      "image": "modern hospital",
+      "style": "hook"
+    },
+    {
+      "voice": "It is rarely just about the comfort of the room. It often impacts your choice of doctors.",
+      "text": "Choosing your *doctor*?",
+      "image": "doctor consulting"
+    },
+    {
+      "voice": "In some setups, you can select your preferred specialist. In others, doctors are assigned to you.",
+      "text": "Assigned or *chosen specialist*?",
+      "image": "medical chart"
+    },
+    {
+      "voice": "Waiting times for non-emergency procedures can also vary significantly between the two.",
+      "text": "Different *waiting times*?",
+      "image": "wall clock"
+    },
+    {
+      "voice": "Your policy wording explains exactly how your specific plan handles different hospital types.",
+      "text": "Check your *policy wording*.",
+      "image": "insurance contract"
+    },
+    {
+      "voice": "Follow to understand your insurance better, one simple concept at a time.",
+      "text": "Follow for *insurance basics*.",
+      "image": "smiling woman",
+      "style": "cta"
+    }
+  ],
+  "caption": "Hospital choices can impact your care experience and costs. 🏥\n\nAlways check your policy wording to understand how your coverage applies.",
+  "hashtags": [
+    "#insurancetips",
+    "#healthinsurance",
+    "#smartmoney",
+    "#insurancebasics"
+  ]
+}
