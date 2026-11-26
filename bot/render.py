@@ -9,6 +9,7 @@ Styles, chosen by `video_style` in the profile (or per script):
 from __future__ import annotations
 
 import hashlib
+import re
 import random
 import shutil
 import subprocess
@@ -155,7 +156,9 @@ def _probe_duration(path: Path) -> float:
 FRAME = 960          # size of the framed picture
 FRAME_TOP = 430      # y of the picture's top edge
 XFADE = 0.35         # crossfade length between scenes
-AI_TITLE_Y = 330
+AI_TITLE_Y = FRAME_TOP - 34   # headline sits just above the picture and grows upward
+NO_TEXT = ("Absolutely no text, no words, no letters, no numbers, no captions, no signs, no labels, "
+           "no speech bubbles anywhere in the image.")
 AI_CAPTION_Y = 1530
 AI_HANDLE_Y = 1625
 
@@ -174,10 +177,7 @@ def _scene_picture(script: dict, scene: dict, i: int, profile: dict, work: Path,
         path = ASSETS_DIR / "images" / spec[5:].strip()
         if path.exists():
             return path, "your image"
-    prompt = (scene.get("visual") or "").strip()
-    if not prompt:  # older scripts without "visual": build one from the stock keywords + what's said
-        said = (scene.get("voice") or scene.get("text") or "").strip()
-        prompt = f"{scene['image']}, illustrating: {said}" if scene.get("image") else said
+    prompt = clean_visual(scene.get("visual") or scene.get("_auto_visual") or scene.get("image") or "")
     if prompt and media.ai_available():
         full = prompt
         if script.get("character") and script["character"].lower() not in prompt.lower():
@@ -185,6 +185,7 @@ def _scene_picture(script: dict, scene: dict, i: int, profile: dict, work: Path,
         style = vis_cfg.get("style", "")
         if style:
             full += f". Style: {style}"
+        full += ". " + NO_TEXT
         seed = int(hashlib.md5(script["id"].encode()).hexdigest()[:8], 16) % 2_000_000_000
         try:
             return media.ai_image(full, work / f"ai{i:02d}.png", seed=seed, steps=int(vis_cfg.get("steps", 6))), "AI"
@@ -194,6 +195,15 @@ def _scene_picture(script: dict, scene: dict, i: int, profile: dict, work: Path,
     if stock:
         return stock, "stock"
     return None, "none"
+
+
+def clean_visual(text: str) -> str:
+    """Picture prompts must describe things to draw, never words to write: drop quoted text and numbers."""
+    t = re.sub(r"[\"“”'‘’][^\"“”'‘’]{1,80}[\"“”'‘’]", " ", text)        # "14,000", 'Text'
+    t = re.sub(r"\b\d[\d,.:%–-]*\b", " ", t)                             # 28,000 / 0–20 / 20:00
+    t = re.sub(r"(?i)\b(text|caption|label|labeled|labelled|title|words?|writing|says?|reads?)\b[^.,;]*", " ", t)
+    t = re.sub(r"\s+", " ", t).strip(" ,.;:-")
+    return t
 
 
 def _prepare_frames(pic: Path | None, style: dict, work: Path, i: int, last_bg: Path | None):
@@ -226,6 +236,20 @@ def _prepare_frames(pic: Path | None, style: dict, work: Path, i: int, last_bg: 
     return bg_path, sq_path
 
 
+def _fill_missing_visuals(script: dict, profile: dict) -> None:
+    """Older scripts have no picture descriptions: ask the AI writer for them once (not saved to the file)."""
+    from . import writer
+    if not writer.available():
+        return
+    try:
+        prompts = writer.visual_prompts(script, profile)
+        for sc, pr in zip(script["scenes"], prompts):
+            if pr and not sc.get("visual"):
+                sc["_auto_visual"] = pr
+    except Exception as e:
+        print(f"  (couldn't write picture descriptions, using keywords: {e})")
+
+
 def _rounded_mask(path: Path) -> Path:
     if not path.exists():
         m = Image.new("L", (FRAME, FRAME), 0)
@@ -239,6 +263,8 @@ def _render_ai_visuals(script: dict, profile: dict, work: Path, dummy_tts: bool)
     rng = random.Random(script["id"])
     scene_words, spans, voice_wav, total = _voice_track(script, profile, work, dummy_tts)
     mask = _rounded_mask(work / "mask.png")
+    if media.ai_available() and any(not s.get("visual") for s in script["scenes"]):
+        _fill_missing_visuals(script, profile)
 
     # 1. one video segment per scene (picture with slow zoom/pan over its blurred self)
     segments, titles, last_bg, sources = [], [], None, []
