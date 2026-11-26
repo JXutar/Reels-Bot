@@ -14,7 +14,7 @@ instagram:
 video_style: ai_visuals
 
 visuals:
-  style: "bright modern flat illustration, clean shapes, cheerful colours, minimal text, high quality"
+  style: "bright modern flat illustration, clean shapes, cheerful colours, no text, high quality"
   steps: 6
 
 posting: manual
