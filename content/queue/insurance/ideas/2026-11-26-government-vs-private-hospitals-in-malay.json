@@ -1,0 +1,53 @@
+{
+  "id": "2026-11-26-government-vs-private-hospitals-in-malay",
+  "profile": "insurance",
+  "title": "Government vs Private Hospitals in Malaysia",
+  "source_idea": "the different between private hospital and government hospital in malaysia",
+  "mode": "idea",
+  "scenes": [
+    {
+      "voice": "Why do some people wait hours at one hospital, but get a room in minutes at another?",
+      "text": "Why the huge *wait time* difference?",
+      "visual": "A split image showing a crowded waiting area on one side and a quiet modern hallway on the other, moody lighting.",
+      "image": "hospital waiting area",
+      "style": "hook"
+    },
+    {
+      "voice": "Government hospitals in Malaysia are heavily subsidized, making treatment incredibly affordable for everyone.",
+      "text": "Public care is *heavily subsidized*",
+      "visual": "A doctor smiling reassuringly at an elderly patient in a simple medical clinic, warm atmosphere.",
+      "image": "doctor patient consultation"
+    },
+    {
+      "voice": "Because they handle the vast majority of complex cases, they house some of the country's top specialists.",
+      "text": "Home to top *medical specialists*",
+      "visual": "A group of focused surgeons in scrubs discussing a chart in a bright operating room.",
+      "image": "surgeons working"
+    },
+    {
+      "voice": "However, high demand means non-urgent surgeries and consultations often come with long waiting lists.",
+      "text": "High demand means *longer waiting*",
+      "visual": "A calendar on a desk with several future dates highlighted, subtle cinematic daylight.",
+      "image": "calendar schedule"
+    },
+    {
+      "voice": "Private hospitals offer speed, private rooms, and modern amenities, but you pay for that comfort and convenience.",
+      "text": "Private means *speed and comfort*",
+      "visual": "A comfortable single hospital room with a large window and modern armchair, peaceful mood.",
+      "image": "private hospital room"
+    },
+    {
+      "voice": "It comes down to what you value most in that moment: minimal cost or maximum speed.",
+      "text": "Choosing *cost vs speed*",
+      "visual": "A person standing at a crossroads in a clean minimalist corridor looking forward, thoughtful tone.",
+      "image": "person decision"
+    }
+  ],
+  "caption": "Choosing between public and private healthcare in Malaysia often comes down to balancing your budget against your need for speed. 🏥⚡",
+  "hashtags": [
+    "#MalaysiaHealthcare",
+    "#InsuranceBasics",
+    "#FinancialLiteracy",
+    "#PersonalFinanceMY"
+  ]
+}
