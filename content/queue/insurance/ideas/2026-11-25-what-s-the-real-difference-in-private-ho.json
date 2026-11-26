@@ -25,20 +25,9 @@
       "voice": "Then there is how your bill gets settled. Direct billing versus paying first and claiming later.",
       "text": "Direct billing or *pay and claim*?",
       "image": "credit card machine"
-    },
-    {
-      "voice": "Always check your policy wording to understand your specific room and provider options.",
-      "text": "Check your *policy wording*.",
-      "image": "insurance contract"
-    },
-    {
-      "voice": "Follow for more simple insurance concepts explained clearly.",
-      "text": "Follow for *insurance basics*.",
-      "image": "smiling friend",
-      "style": "cta"
     }
   ],
-  "caption": "Not all private hospital setups are built the same. 🏥\n\nAlways check your policy wording to see how your specific health coverage handles specialist choices and billing.",
+  "caption": "Not all private hospital setups are built the same.\n🏥",
   "hashtags": [
     "#insurancetips",
     "#healthinsurance",

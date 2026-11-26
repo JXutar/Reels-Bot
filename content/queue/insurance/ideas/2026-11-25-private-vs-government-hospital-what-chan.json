@@ -25,20 +25,9 @@
       "voice": "Waiting times for non-emergency procedures can also vary significantly between the two.",
       "text": "Different *waiting times*?",
       "image": "wall clock"
-    },
-    {
-      "voice": "Your policy wording explains exactly how your specific plan handles different hospital types.",
-      "text": "Check your *policy wording*.",
-      "image": "insurance contract"
-    },
-    {
-      "voice": "Follow to understand your insurance better, one simple concept at a time.",
-      "text": "Follow for *insurance basics*.",
-      "image": "smiling woman",
-      "style": "cta"
     }
   ],
-  "caption": "Hospital choices can impact your care experience and costs. 🏥\n\nAlways check your policy wording to understand how your coverage applies.",
+  "caption": "Hospital choices can impact your care experience and costs.\n🏥",
   "hashtags": [
     "#insurancetips",
     "#healthinsurance",

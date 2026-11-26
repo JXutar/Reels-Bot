@@ -32,18 +32,12 @@
       "image": "empty desk"
     },
     {
-      "voice": "Most people can't tick every box. Check your policy wording to see how your plan protects your working years.",
-      "text": "Check your *policy wording*.",
+      "voice": "Most people can't tick every box.",
+      "text": "Most people can't tick every box.",
       "image": "insurance contract"
-    },
-    {
-      "voice": "Follow for more simple insurance concepts explained clearly.",
-      "text": "Follow for *insurance basics*.",
-      "image": "smiling friend",
-      "style": "cta"
     }
   ],
-  "caption": "Ever wonder how your working years support your whole life? 🗓️\n\nOut of 28,000 days, only about half are spent earning. Always check your policy wording to understand how your coverage protects you and your family.",
+  "caption": "Ever wonder how your working years support your whole life?\n🗓️\nOut of 28,000 days, only about half are spent earning.",
   "hashtags": [
     "#insurancetips",
     "#financialliteracy",
