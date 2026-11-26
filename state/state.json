@@ -149,14 +149,19 @@
         {
           "status": "scheduled",
           "at": "2026-11-26T09:09:49+00:00"
+        },
+        {
+          "status": "published",
+          "at": "2026-11-26T12:31:34+00:00"
         }
       ],
-      "status": "scheduled",
+      "status": "published",
       "profile": "insurance",
       "telegram_message_id": 76,
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795683432/reels-bot/2026-11-03-term-vs-whole-life.mp4",
       "public_id": "reels-bot/2026-11-03-term-vs-whole-life",
-      "scheduled_at": "2026-11-26T20:09:49.309308+08:00"
+      "scheduled_at": "2026-11-26T20:09:49.309308+08:00",
+      "media_id": "18115975799237014"
     },
     "2026-11-26-28-000-days-your-life-in-four-parts": {
       "history": [
