@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075850,
+  "telegram_offset": 182075851,
   "items": {
     "2026-11-02-waiting-period": {
       "history": [
@@ -136,13 +136,22 @@
         {
           "status": "pending_review",
           "at": "2026-11-26T08:07:35+00:00"
+        },
+        {
+          "status": "post_now",
+          "at": "2026-11-26T08:10:51+00:00"
+        },
+        {
+          "status": "published",
+          "at": "2026-11-26T08:11:42+00:00"
         }
       ],
-      "status": "pending_review",
+      "status": "published",
       "profile": "insurance",
       "telegram_message_id": 72,
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795680450/reels-bot/2026-11-26-government-vs-private-hospitals-in-malay.mp4",
-      "public_id": "reels-bot/2026-11-26-government-vs-private-hospitals-in-malay"
+      "public_id": "reels-bot/2026-11-26-government-vs-private-hospitals-in-malay",
+      "media_id": "18169775428485281"
     }
   },
   "last_publish": {
