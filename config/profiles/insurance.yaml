@@ -14,16 +14,27 @@ instagram:
   graduation: MANUAL        # MANUAL or SS_PERFORMANCE
 
 # How reels look:
-#   background = background video + word-by-word subtitles + pop-up images (default)
+#   ai_visuals = an AI picture per scene with slow zoom, headline + word-by-word subtitles (default)
+#   background = background video (your clips / stock) + subtitles + pop-up images
 #   slides     = the original slideshow style
-video_style: background
+video_style: ai_visuals
+
+# Look of the AI pictures (Cloudflare). Every scene's picture gets this style added, so they match.
+visuals:
+  style: "clean modern flat illustration, soft warm colours, simple shapes, friendly, minimal text, high quality"
+  steps: 6            # 4-8; higher = a bit better quality, uses more of the free daily allowance
+
+# When reels get posted:
+#   manual = only when you tap 🚀 Post now / 🗓 Schedule (or /post, /schedule)   (default)
+#   auto   = also post approved reels automatically on the days/hour below
+posting: manual
 
 background:
   use_own_clips: true        # use clips in content/assets/backgrounds/ first (e.g. your Minecraft parkour)
   stock_query: "city lights night"    # otherwise search free stock video (needs PIXABAY_API_KEY secret)
   dim: 0.45                  # darken the background so subtitles stay readable (0 = none, 0.7 = very dark)
 
-schedule:
+schedule:       # only used with posting: auto
   days: [Wed]               # posting days (1 per week ~ 5 scripts per month)
   hour: 20                  # local hour to post (24h). 20 = 8pm
   max_per_day: 1            # reels posted per posting day (the next one goes ~1 hour later)
@@ -53,13 +64,40 @@ style:
   music_volume: 0.10
 
 caption:
-  footer: "General education only, not financial advice. Always check your own policy wording."
+  footer: "General education only, not financial advice."
   default_hashtags: ["#insurance101", "#financialliteracy", "#malaysia", "#personalfinance"]
 
 # Rules I follow when writing scripts for this profile (kept here so they travel with the profile).
 rules:
-  - Explain general insurance concepts only.
+  - Explain general insurance and money concepts simply, like a friend over coffee. Not salesy.
   - Never name a specific product, insurer, premium, or projected return.
-  - No promises of payouts or guarantees; point people to their own policy wording.
-  - 20-40 seconds of narration, 5-7 scenes, one idea per scene.
-  - Open with a hook question or surprising statement; close with a soft call to follow.
+  - No promises of payouts or guarantees.
+  - Don't tell viewers to check their policy, and don't say "policies differ".
+  - No calls to action of any kind (no "follow", "like", "share", "comment").
+  - One idea per scene. Open with a hook question or surprising fact; end on a clear takeaway.
+
+# Phrases that must never appear in AI-written scripts or captions (whole sentences containing them
+# are removed, and the AI is asked to rewrite). Add your own. Your own /script lines are never changed.
+banned_phrases:
+  - follow for
+  - follow to
+  - follow along
+  - follow if
+  - give it a follow
+  - follow me
+  - follow us
+  - hit follow
+  - like and subscribe
+  - subscribe
+  - comment below
+  - share this with
+  - policies differ
+  - different policies
+  - every policy is different
+  - policies handle
+  - policy handles
+  - check your policy
+  - check your own policy
+  - policy wording
+  - read the fine print
+  - speak to your agent

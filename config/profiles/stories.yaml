@@ -13,14 +13,20 @@ instagram:
   trial_reel: true
   graduation: MANUAL
 
-video_style: background
+video_style: ai_visuals
 
-background:
+visuals:
+  style: "cinematic digital painting, moody lighting, rich colours, storybook atmosphere, no text"
+  steps: 6
+
+posting: manual
+
+background:     # only used if you switch video_style to background (e.g. gameplay clips)
   use_own_clips: true          # your gameplay clips in content/assets/backgrounds/ come first
   stock_query: "satisfying abstract loop"
   dim: 0.35
 
-schedule:
+schedule:       # only used with posting: auto
   days: [Sat]
   hour: 20
   max_per_day: 1
@@ -58,5 +64,20 @@ rules:
   - Open with the strange rule or premise in the very first line.
   - Second person ("you") or a single main character; simple vocabulary; short sentences.
   - Build tension scene by scene and end on a twist or an eerie last line.
+  - No calls to action of any kind (no "follow", "like", "part two", "comment").
   - Keep it suitable for a general audience (no gore, no real people, nothing hateful).
   - 30-45 seconds of narration.
+
+banned_phrases:
+  - follow for
+  - follow to
+  - follow along
+  - follow if
+  - give it a follow
+  - follow me
+  - hit follow
+  - like and subscribe
+  - subscribe
+  - comment below
+  - part two
+  - part 2
