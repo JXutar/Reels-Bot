@@ -1,7 +1,7 @@
 name: Tick (read approvals, post on schedule)
 
-# Reads Telegram (Approve/Reject taps, /idea, /remake, /status, /post), posts approved reels when a
-# slot is due, and renders any new reels that /idea or /remake created.
+# Reads Telegram (Post now / Schedule / Reject taps, /idea, /script, /schedule, /status...), posts reels
+# that are due, and renders any new reels that /idea, /script or /remake created.
 # Runs hourly on GitHub's schedule (which can be late), and whenever cron-job.org triggers it (see README).
 on:
   schedule:
@@ -30,6 +30,8 @@ jobs:
       PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v4
