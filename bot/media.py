@@ -206,23 +206,34 @@ def ai_available() -> bool:
 
 
 def ai_image(prompt: str, out: Path, seed: int, steps: int = 6) -> Path:
-    """Generate one square image (~1024px) with FLUX.1 schnell on Cloudflare. Raises on failure."""
+    """Generate one square image (~1024px) with FLUX.1 schnell on Cloudflare. Raises on failure.
+    Optional settings the model rejects (e.g. 'seed') are dropped automatically and remembered."""
     import base64
 
     account = os.environ["CLOUDFLARE_ACCOUNT_ID"].strip()
     token = os.environ["CLOUDFLARE_API_TOKEN"].strip()
     url = f"https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{CF_MODEL}"
+    payload = {"prompt": prompt[:2000], "steps": min(8, steps), "seed": seed}
+    for key in _CF_UNSUPPORTED:
+        payload.pop(key, None)
     last = None
-    for attempt in range(3):
+    for attempt in range(5):
         try:
-            r = requests.post(url, headers={"Authorization": f"Bearer {token}"}, timeout=120,
-                              json={"prompt": prompt[:2000], "steps": min(8, steps), "seed": seed + attempt})
+            r = requests.post(url, headers={"Authorization": f"Bearer {token}"}, timeout=120, json=payload)
             if r.headers.get("content-type", "").startswith("image/"):
                 data = r.content  # some models return raw image bytes
             else:
                 body = r.json()
                 if not body.get("success", r.status_code < 400):
-                    raise RuntimeError(f"Cloudflare: {body.get('errors') or body}")
+                    err = str(body.get("errors") or body)
+                    bad = re.findall(r"'/(\w+)'", err)
+                    dropped = [k for k in bad if k in payload and k != "prompt"]
+                    if dropped and "not allowed" in err:
+                        for k in dropped:
+                            payload.pop(k)
+                            _CF_UNSUPPORTED.add(k)
+                        continue  # retry straight away without the rejected setting
+                    raise RuntimeError(f"Cloudflare: {err}")
                 data = base64.b64decode(body["result"]["image"])
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_bytes(data)
@@ -230,10 +241,14 @@ def ai_image(prompt: str, out: Path, seed: int, steps: int = 6) -> Path:
             return out
         except Exception as e:
             last = e
-            if "quota" in str(e).lower() or "4006" in str(e) or "limit" in str(e).lower():
-                break  # daily free allowance used up -> don't keep trying
+            msg = str(e).lower()
+            if "quota" in msg or "4006" in msg or "neurons" in msg or "authentication" in msg or "10000" in msg:
+                break  # out of free allowance or bad token -> don't keep trying
             time.sleep(2)
     raise RuntimeError(f"AI image failed: {last}")
+
+
+_CF_UNSUPPORTED: set[str] = set()
 
 
 def stock_photo(query: str, rng: random.Random) -> Path | None:
