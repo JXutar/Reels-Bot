@@ -90,24 +90,26 @@ def write_ass(scene_words: list[list[tuple[str, float, float]]], total: float, s
     for text, start, end, kind in titles or []:
         if not text:
             continue
-        body = _highlight(_escape(text.upper() if upper and kind == "title" else text), accent)
+        body = _highlight(_escape(text.upper() if upper and kind == "title" else text), accent, white)
         if kind == "card":
             lines.append(f"Dialogue: 2,{_ts(start)},{_ts(end)},Card,,0,0,0,,{{\\pos(540,900)\\fad(250,200)}}{body}")
         else:
+            plain = len(text.replace("*", ""))
+            fs = int(style.get("title_size", 76)) if plain <= 24 else 62 if plain <= 44 else 52 if plain <= 64 else 44
             lines.append(f"Dialogue: 2,{_ts(start)},{_ts(end)},Title,,0,0,0,,"
-                         f"{{\\pos(540,{title_y})\\fad(200,150)\\fscx90\\fscy90\\t(0,180,\\fscx100\\fscy100)}}{body}")
+                         f"{{\\an2\\pos(540,{title_y})\\fs{fs}\\fad(200,150)}}{body}")
     if handle:
         lines.append(f"Dialogue: 0,{_ts(0)},{_ts(total)},Handle,,0,0,0,,{{\\pos(540,{handle_y})}}{_escape(handle)}")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return out
 
 
-def _highlight(text: str, accent: str) -> str:
-    """*word* -> accent colour (ASS override tags)."""
+def _highlight(text: str, accent: str, base: str = "&H00FFFFFF") -> str:
+    """*word* -> accent colour (ASS override tags). Only the colour changes, so size stays the same."""
     out, on = [], False
     for part in text.split("*"):
         if on and part:
-            out.append(f"{{\\c{accent}}}{part}{{\\r}}")
+            out.append(f"{{\\c{accent}}}{part}{{\\c{base}}}")
         else:
             out.append(part)
         on = not on
