@@ -21,7 +21,7 @@ video_style: ai_visuals
 
 # Look of the AI pictures (Cloudflare). Every scene's picture gets this style added, so they match.
 visuals:
-  style: "clean modern flat illustration, soft warm colours, simple shapes, friendly, minimal text, high quality"
+  style: "clean modern flat illustration, soft warm colours, simple shapes, friendly, no text, high quality"
   steps: 6            # 4-8; higher = a bit better quality, uses more of the free daily allowance
 
 # When reels get posted:
