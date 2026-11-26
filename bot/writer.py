@@ -204,7 +204,9 @@ Write ONE reel script as JSON with exactly these keys:
     - "voice": what the narrator says (natural spoken English, 1-3 sentences)
     - "text": a short on-screen headline for the scene (max 8 words); wrap 1-2 key words in *asterisks*
     - "visual": a vivid one-sentence description of a picture that illustrates this scene
-      (for an AI image generator: subject, setting, mood; no logos, no real brands, no real people)
+      (for an AI image generator: subject, setting, mood; no logos, no real brands, no real people).
+      The picture must contain NO text, words, numbers, signs or labels: show the idea with objects,
+      people and scenery only (the headline carries any words or numbers)
     - "image": 1-3 word stock-photo search for the same idea (e.g. "hospital bed")
   The first scene must hook the viewer in the first 2 seconds. The last scene must land the ending
   (a twist, punchline or a clear takeaway). Total narration: {length} when read aloud.
@@ -240,7 +242,9 @@ Return JSON with:
 - "prompts": a list with one entry per scene, in order: a standalone one-sentence image description for an
   AI image generator, based on that scene's "visual" (or its voice if visual is empty). If the recurring
   character appears, describe them using the "character" description instead of their name.
-  No logos, no real brands, no real people.
+  No logos, no real brands, no real people. The picture must contain NO text, words, numbers, signs or labels:
+  turn things like "a counter showing 28,000" into a visual idea without readable writing
+  (e.g. "a huge glowing mechanical counter with blurred spinning digits").
 - "images": a list with one 1-3 word stock-photo search per scene, in order.
 
 Return ONLY the JSON object."""
@@ -420,3 +424,18 @@ def script_from_text(text: str, profile: dict, existing_ids: set[str], today: da
         script["character"] = character
     validate_script(script, "your script")
     return script
+
+
+def visual_prompts(script: dict, profile: dict) -> list[str]:
+    """For scripts that have no 'visual' lines: one textless picture description per scene."""
+    scenes = [{"n": i + 1, "voice": s.get("voice", ""), "headline": s.get("text", "")}
+              for i, s in enumerate(script["scenes"])]
+    prompt = f"""Write picture descriptions for an AI image generator, one per scene of this short video.
+CHANNEL: {profile.get('description', profile['name'])}
+SCENES: {json.dumps(scenes, ensure_ascii=False)}
+Each description: one sentence showing the scene's idea with people, objects and setting.
+The picture must contain NO text, words, numbers, signs or labels. No logos, brands or real people.
+Return JSON: {{"prompts": ["...", "..."]}} with exactly {len(scenes)} entries, in order."""
+    data = _extract_json(_ask(prompt))
+    out = [str(p).strip() for p in data.get("prompts", [])]
+    return out + [""] * (len(scenes) - len(out))
