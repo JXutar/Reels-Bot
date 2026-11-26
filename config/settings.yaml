@@ -3,8 +3,10 @@
 active_profiles:
   - insurance
   - stories
+  - general
 
-# Which profile "/idea <text>" uses when you don't name one (e.g. "/idea story: ..." picks stories).
+# Which profile "/idea <text>" uses when you don't name one
+# ("/idea story: ..." picks stories, "/idea general: ..." picks general).
 idea_default_profile: insurance
 
 # Timezone used for the posting schedule.
