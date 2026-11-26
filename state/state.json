@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075851,
+  "telegram_offset": 182075852,
   "items": {
     "2026-11-02-waiting-period": {
       "history": [
@@ -92,19 +92,6 @@
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795679543/reels-bot/2026-11-01-deductible.mp4",
       "public_id": "reels-bot/2026-11-01-deductible"
     },
-    "2026-11-03-term-vs-whole-life": {
-      "history": [
-        {
-          "status": "pending_review",
-          "at": "2026-11-26T07:55:08+00:00"
-        }
-      ],
-      "status": "pending_review",
-      "profile": "insurance",
-      "telegram_message_id": 66,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795679705/reels-bot/2026-11-03-term-vs-whole-life.mp4",
-      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
-    },
     "2026-11-04-sum-assured": {
       "history": [
         {
@@ -152,6 +139,19 @@
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795680450/reels-bot/2026-11-26-government-vs-private-hospitals-in-malay.mp4",
       "public_id": "reels-bot/2026-11-26-government-vs-private-hospitals-in-malay",
       "media_id": "18169775428485281"
+    },
+    "2026-11-03-term-vs-whole-life": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-26T08:57:16+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 76,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795683432/reels-bot/2026-11-03-term-vs-whole-life.mp4",
+      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
     }
   },
   "last_publish": {
