@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075852,
+  "telegram_offset": 182075855,
   "items": {
     "2026-11-02-waiting-period": {
       "history": [
@@ -161,5 +161,9 @@
       "count": 1
     }
   },
-  "idea_queue": []
+  "idea_queue": [],
+  "awaiting_time": {
+    "id": "2026-11-03-term-vs-whole-life",
+    "since": "2026-11-26T17:06:15.857835+08:00"
+  }
 }
