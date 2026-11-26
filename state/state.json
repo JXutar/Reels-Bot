@@ -1,19 +1,6 @@
 {
-  "telegram_offset": 182075844,
+  "telegram_offset": 182075846,
   "items": {
-    "2026-11-01-deductible": {
-      "history": [
-        {
-          "status": "pending_review",
-          "at": "2026-11-17T07:45:59+00:00"
-        }
-      ],
-      "status": "pending_review",
-      "profile": "insurance",
-      "telegram_message_id": 8,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901556/reels-bot/2026-11-01-deductible.mp4",
-      "public_id": "reels-bot/2026-11-01-deductible"
-    },
     "2026-11-02-waiting-period": {
       "history": [
         {
@@ -35,32 +22,6 @@
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901646/reels-bot/2026-11-02-waiting-period.mp4",
       "public_id": "reels-bot/2026-11-02-waiting-period",
       "media_id": "18112606979248597"
-    },
-    "2026-11-03-term-vs-whole-life": {
-      "history": [
-        {
-          "status": "pending_review",
-          "at": "2026-11-17T07:48:29+00:00"
-        }
-      ],
-      "status": "pending_review",
-      "profile": "insurance",
-      "telegram_message_id": 10,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901707/reels-bot/2026-11-03-term-vs-whole-life.mp4",
-      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
-    },
-    "2026-11-04-sum-assured": {
-      "history": [
-        {
-          "status": "pending_review",
-          "at": "2026-11-17T07:49:28+00:00"
-        }
-      ],
-      "status": "pending_review",
-      "profile": "insurance",
-      "telegram_message_id": 11,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1794901765/reels-bot/2026-11-04-sum-assured.mp4",
-      "public_id": "reels-bot/2026-11-04-sum-assured"
     },
     "2026-11-05-three-myths": {
       "history": [
@@ -118,17 +79,56 @@
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795582931/reels-bot/2026-11-25-what-s-the-real-difference-in-private-ho.mp4",
       "public_id": "reels-bot/2026-11-25-what-s-the-real-difference-in-private-ho"
     },
-    "2026-11-25-private-vs-government-hospital-what-chan": {
+    "2026-11-01-deductible": {
       "history": [
         {
           "status": "pending_review",
-          "at": "2026-11-25T05:32:03+00:00"
+          "at": "2026-11-26T04:46:30+00:00"
         }
       ],
       "status": "pending_review",
       "profile": "insurance",
-      "telegram_message_id": 48,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795584718/reels-bot/2026-11-25-private-vs-government-hospital-what-chan.mp4",
+      "telegram_message_id": 56,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795668386/reels-bot/2026-11-01-deductible.mp4",
+      "public_id": "reels-bot/2026-11-01-deductible"
+    },
+    "2026-11-03-term-vs-whole-life": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-26T04:47:55+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 57,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795668472/reels-bot/2026-11-03-term-vs-whole-life.mp4",
+      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
+    },
+    "2026-11-04-sum-assured": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-26T04:49:10+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 58,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795668547/reels-bot/2026-11-04-sum-assured.mp4",
+      "public_id": "reels-bot/2026-11-04-sum-assured"
+    },
+    "2026-11-25-private-vs-government-hospital-what-chan": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-26T04:49:58+00:00"
+        }
+      ],
+      "status": "pending_review",
+      "profile": "insurance",
+      "telegram_message_id": 59,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795668595/reels-bot/2026-11-25-private-vs-government-hospital-what-chan.mp4",
       "public_id": "reels-bot/2026-11-25-private-vs-government-hospital-what-chan"
     }
   },
