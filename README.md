@@ -1,23 +1,19 @@
 # Reels Bot
 
-Turns short lesson scripts into vertical videos (a background video with word-by-word subtitles, pop-up images and an AI voiceover), sends each one to your phone on Telegram for approval, and posts the approved ones to Instagram as **trial reels** on a schedule. Everything runs free on GitHub Actions.
+Send an idea (or a full script you wrote) to your Telegram bot. It writes the script if needed, makes a vertical reel with an AI voiceover, an **AI-generated picture for every scene** (slow zoom, crossfades, headlines and word-by-word subtitles), and sends it back to you. Then you tap **🚀 Post now**, **🗓 Schedule**, or **❌ Reject**. Everything runs free on GitHub Actions.
 
 ```
- You + Claude            GitHub Actions                     Your phone           Instagram
- ─────────────           ─────────────────────────          ──────────           ─────────
- 5 scripts / month ──▶   render.yml                          Telegram:
- (JSON files in          · voiceover (edge-tts)        ──▶   ✅ Approve
-  content/queue/)        · slides + video (ffmpeg)           ❌ Reject
-                         · host on Cloudinary                     │
-                                                                  ▼
-                         tick.yml (every hour)          ◀──  your taps
-                         · every Wed after 8pm,
-                           posts the oldest approved  ──────────────────▶  Trial reel
-                           reel, then tells you                           (non-followers first,
-                                                                           you graduate it manually)
+ You (Telegram)                 GitHub Actions (every ~30 min)                       Instagram
+ ──────────────                 ──────────────────────────────                       ─────────
+ /idea 60s: why co-payment...   AI writes the script (Gemini, free)
+ /script SCENE 1 / VO: ...  ──▶ or keeps your script exactly as written
+                                voiceover (edge-tts) + AI picture per scene
+                                (Cloudflare, free) + subtitles  ──▶  video to you
+ [🚀 Post now] [🗓 Schedule] [❌]  ◀──────────────────────────────────────
+         └────────────────────▶ posts now, or at the time you chose  ──────────▶  trial reel
 ```
 
-**The short version:** send your bot `/idea in this town nobody can say "I" or they turn to stone`. A few minutes later the finished reel arrives on Telegram. Tap ✅, and it posts on schedule.
+**The short version:** send your bot `/idea 60s: why medical cards have a co-payment`. A few minutes later the finished reel arrives on Telegram. Tap 🚀 to post it, or 🗓 and reply `fri 9pm`.
 
 **Cost: RM0.** GitHub Actions, edge-tts voices, Telegram, Cloudinary's free plan and the Instagram API are all free at this volume. The scripts (5 a month) come from Claude in your Pro plan, so there's no API bill.
 
@@ -71,7 +67,7 @@ Instagram tokens last 60 days. The `refresh-token` workflow renews them twice a 
 3. Copy the token.
 
 ### 6. Add the secrets
-Secrets are how the bot gets your passwords without them ever appearing in the code. You create **8 separate secrets** (9 with the optional Pixabay key), one per row below. Each one has two boxes:
+Secrets are how the bot gets your passwords without them ever appearing in the code. You create **8 required secrets**, plus the optional ones for AI writing (Gemini), AI pictures (Cloudflare) and stock photos (Pexels/Pixabay), one per row below. Each one has two boxes:
 - **Name:** type the exact name from the left column (capitals and underscores matter, because the bot looks secrets up by name).
 - **Secret:** paste *only* the value, with no quotes and no labels.
 
@@ -87,6 +83,8 @@ For each row: **Settings → Secrets and variables → Actions → New repositor
 | `IG_USER_ID` | from step 4 |
 | `IG_ACCESS_TOKEN` | from step 4 |
 | `GH_PAT` | from step 5 |
+| `CLOUDFLARE_ACCOUNT_ID` *(for AI pictures)* | see step 6e |
+| `CLOUDFLARE_API_TOKEN` *(for AI pictures)* | see step 6e |
 | `GEMINI_API_KEY` *(for /idea)* | free key from aistudio.google.com, see step 6c |
 | `PIXABAY_API_KEY` *(optional)* | free key from pixabay.com/api/docs, for stock videos + pop-up images |
 
@@ -120,50 +118,89 @@ GitHub's own hourly schedule often runs 5–12 hours late, so your `/idea` messa
    - **Advanced → Request body:** `{"ref":"main"}`
 3. Save, then use **Test run**. A response of **204** means it worked, and a new *Tick* run appears in your Actions tab.
 
+### 6e. Cloudflare (AI pictures for every scene, free)
+Cloudflare's Workers AI gives everyone a free daily allowance. That's enough for well over 100 pictures a day with the FLUX.1 schnell model the bot uses. A 15-scene reel needs 15.
+1. Sign up free at **dash.cloudflare.com** (no card needed).
+2. **Account ID:** on the dashboard home, open **Workers & Pages** (or any account page). The **Account ID** is shown in the right-hand sidebar, and it's also the long code in the page URL after `dash.cloudflare.com/`. Save it as the secret `CLOUDFLARE_ACCOUNT_ID`.
+3. **API token:** go to your profile icon → **My Profile → API Tokens → Create Token** → use the **"Workers AI"** template → **Continue → Create Token**. Copy it and save it as the secret `CLOUDFLARE_API_TOKEN`.
+4. Run **Check setup**. It should say `AI pictures (Cloudflare): OK`.
+
+If the free daily allowance runs out, or Cloudflare has a problem, scenes fall back to stock photos (Pexels/Pixabay) automatically.
+
 ### 7. Personalise and test
 1. In `config/profiles/insurance.yaml`, set `handle:` to your Instagram handle. Change colours or posting days if you like.
 2. **Actions → Check setup → Run workflow.** You should get a 👋 message on Telegram.
-3. **Actions → Render new reels → Run workflow.** About 5 minutes later, your 5 reels arrive on Telegram with Approve / Reject buttons.
+3. Send your bot `/idea short: what a deductible is`. Within ~30 minutes, the finished reel arrives on Telegram with 🚀 Post now / 🗓 Schedule / ❌ Reject buttons.
 
 > **Trial reels need a minimum follower count** (Instagram's threshold is reported as somewhere between 200 and 1,000 for professional accounts). If your account doesn't qualify yet, posting will fail with an error on Telegram. Set `trial_reel: false` in the profile to post normal reels until it does.
 
 ---
 
-## Making reels from an idea (the easy way)
+## Making reels
 
-Send your Telegram bot:
-- `/idea <your idea>`: uses the default profile (insurance). Example: `/idea why your medical card has a co-payment`
-- `/idea story: <your idea>`: uses the **stories** profile. Example: `/idea story: in this town everybody cannot say the word I or they turn into stone`
-- `/idea story`: the AI picks a topic for you
+### From an idea (the AI writes it)
+- `/idea <your idea>`: uses the default profile (insurance). Example: `/idea why medical cards have a co-payment`
+- `/idea story: <idea>` or `/idea general: <idea>`: picks the profile
+- `/idea 60s: <idea>`, `/idea long: ...`, `/idea short: ...`: sets the length (15–90 seconds; default ~40)
+- Mix them: `/idea story 75s: in this town nobody can say "I" or they turn to stone`
+- `/idea story` on its own: the AI picks a topic
 
-At the next check (within ~30 minutes with cron-job.org), the bot replies "📝 Writing…". The AI writes the script, the reel is rendered, and it arrives for you to approve. The script is also saved in `content/queue/<profile>/ideas/`, so you can see or edit what the AI wrote.
+### From your own script (kept word for word)
+Paste a script with `SCENE` / `VO:` / `Text:` / `Visual:` lines, either after `/idea` or `/script`. Every scene and every spoken line stays exactly as you wrote it, with no length cap (up to 25 scenes). The AI only adds a title, caption and hashtags, and turns your `Visual:` notes into picture prompts. It also keeps a recurring character (e.g. "Alex") looking the same across scenes as far as it can.
+```
+/script 28,000 DAYS
+SCENE 1
+Visual: A big counter spins up to 28,000
+VO: "You'll live about 28,000 days. But you'll only get paid for half of them."
+Text: 28,000 days
+PAUSE 1.5
+SCENE 2
+...
+SCENE 14
+Visual: Simple end card
+VO: (none)
+Text: For general education only. Not financial advice.
+```
+- `PAUSE` (or `PAUSE 2`) adds a beat of silence after the scene above it.
+- `VO: (none)` makes a silent scene: its `Text:` is shown big in the middle for 3 seconds (good for end cards).
+- Header lines above `SCENE 1` (Length, Voice, Music) are ignored.
+- Long scripts that Telegram splits into two messages are joined back together automatically.
 
-**All Telegram commands:**
+### Reviewing and posting
+Every finished reel arrives with three buttons:
+
+| Button | What happens |
+|---|---|
+| 🚀 **Post now** | posts at the bot's next check (within ~30 minutes) |
+| 🗓 **Schedule** | the bot asks "When?". Reply with `tomorrow 8pm`, `fri 9pm`, `28/11 20:00`, `in 3 hours`, `tonight`… |
+| ❌ **Reject** | never posted; the temporary video copy is deleted |
+
+Nothing posts unless you choose. Times are accurate to about 30 minutes (the bot wakes up every ~30 minutes).
+
+### All Telegram commands
 | Command | What it does |
 |---|---|
-| `/idea ...` | write + make a new reel (see above) |
-| `/status` | what's waiting, approved, posted |
-| `/post <id>` | post an approved reel right now |
+| `/idea ...` / `/script ...` | make a new reel (see above) |
+| `/status` | what's waiting, scheduled (with times), posted |
+| `/post <id>` | post now |
+| `/schedule <id> <when>` | schedule or reschedule, e.g. `/schedule deductible fri 9pm` |
+| `/unschedule <id>` | cancel a scheduled post (the reel is kept) |
 | `/remake <id>` or `/remake all` | re-render reels that aren't posted yet (e.g. after changing the style) |
+| `/cancel` | stop the "When?" question |
 | `/help` | list of commands |
+
+**Ids can be shortened** to any unique part: `deductible` instead of `2026-11-01-deductible`.
 
 You can also remake from GitHub: **Actions → Render new reels → Run workflow**, then type an id or `all` in the **Remake** box.
 
-**Auto-approve:** set `auto_approve: true` under `review:` in a profile to skip the Approve tap for that profile. You'll still get the video with a ❌ Cancel button.
+### Words the AI must never use
+Each profile has a `banned_phrases:` list (e.g. "follow for", "check your policy", "policies differ"). If the AI writes one, it's asked to rewrite, and any sentence still containing one is removed. Add your own phrases to the list anytime. Your own `/script` lines are never changed.
 
-**Missed slots:** if GitHub runs late and misses the posting time, the bot still posts at the next check, up to `catch_up_hours` (24 by default) after the slot.
+### Automatic weekly posting (optional)
+Set `posting: auto` in a profile to also post reels you've put on hold (via `/unschedule`) automatically on the `schedule:` days and hour, catching up within `catch_up_hours` if GitHub runs late. The default is `posting: manual`.
 
-## Monthly routine (about 5 minutes)
-
-1. Near the end of each month, in your **Social media Posting** Claude project, ask: *"Write next month's 5 insurance reel scripts."* Claude writes 5 JSON files in the format below.
-2. In GitHub, open `content/queue/insurance/`, then **Add file → Upload files** and put them in a new month folder (e.g. `2026-12/`). Commit.
-3. Rendering starts automatically, and the reels arrive on Telegram. Approve the ones you're happy with.
-4. One approved reel posts every Wednesday after 8pm. Months with only 4 Wednesdays carry the extra one over to the next month. Telegram tells you when each one is posted. Want a different day? Change `days:` in the profile.
-5. In Instagram, check each trial reel after a day or two. If it did well, open it and tap **Share to everyone**.
-
-**Telegram commands:** `/status` shows what's pending, approved and posted. `/post <id>` posts an approved reel right now.
-
----
+## Writing scripts with Claude (optional)
+You can still ask Claude in your **Social media Posting** project for a batch of scripts and upload the JSON files to `content/queue/<profile>/<YYYY-MM>/`. Rendering starts automatically.
 
 ## Script format
 
@@ -183,8 +220,10 @@ You can write your own scripts in this format, ask Claude to write them, or mix 
   "hashtags": ["#tag1", "#tag2"]
 }
 ```
-- `voice` is what's spoken. In the **background** style, the subtitles come from this, word by word.
-- `text` is the on-screen line for the **slides** style (keep it short; `*asterisks*` colour words). It's still required, so a reel can be switched between styles.
+- `voice` is what's spoken; the subtitles come from it, word by word. Leave it empty (`""`) for a silent scene, and add `"hold": 3` for how many seconds to show it.
+- `"visual"` *(per scene)*: description for the AI picture (ai_visuals style).
+- `"pause_after"` *(per scene)*: seconds of silence after the scene.
+- `text` is the scene's on-screen headline (keep it short; `*asterisks*` colour words).
 - `"image"` *(optional, per scene)*: a pop-up picture while that scene is spoken. Use keywords for a stock photo (`"image": "hospital bill"`) or your own file (`"image": "file:my-chart.png"` from `content/assets/images/`).
 - `"background"` *(optional, per script)*: stock-video search words for the background video (`"background": "hospital corridor"`), or one of your clips (`"background": "file:parkour1.mp4"`).
 - `"video_style"` *(optional)*: `"slides"` to use the slideshow for just this reel.
@@ -197,7 +236,9 @@ You can write your own scripts in this format, ask Claude to write them, or mix 
 
 Set `video_style:` in the profile.
 
-**`background` (default):** a background video plays full screen (darkened so text stays readable), subtitles appear in the middle with the spoken word highlighted, and pop-up images bounce in above them.
+**`ai_visuals` (default):** every scene gets its own AI picture (Cloudflare), framed in the middle with a slow zoom and pan, over a blurred, darkened copy of itself. Scenes crossfade, each scene's `text` appears as a headline above the picture, and word-by-word subtitles run underneath. The picture style for the whole profile is set in `visuals: style:`, so all scenes look like they belong together. The fallbacks are your own image (`"image": "file:..."`), then a stock photo, then a plain background.
+
+**`background`:** a background video plays full screen (darkened so text stays readable), subtitles appear in the middle with the spoken word highlighted, and pop-up images bounce in above them.
 
 Where the background comes from, in order:
 1. The script's `"background": "file:..."` clip, if set.
@@ -213,12 +254,13 @@ To stop using your own clips without deleting them, set `use_own_clips: false` u
 
 ## Profiles included
 
-| Profile | Use with | Posts | Style |
-|---|---|---|---|
-| `insurance` | `/idea ...` or `/idea ins: ...` | Wednesdays 8pm | lessons, disclaimer footer, calm stock footage |
-| `stories` | `/idea story: ...` | Saturdays 8pm | fiction with a twist, storyteller voice, your gameplay clips first |
+| Profile | Use with | Style |
+|---|---|---|
+| `insurance` | `/idea ...` (default) or `/idea ins: ...` | concept lessons, friendly, "not financial advice" caption footer |
+| `stories` | `/idea story: ...` | fiction with a twist, storyteller voice, cinematic pictures |
+| `general` | `/idea general: ...` | any other topic: tips, explainers, events. No disclaimer |
 
-Both post to the same Instagram account by default. Change `days:`/`hour:` in each profile, or point `stories` at a second account (below).
+All three use AI visuals, manual posting, and the same Instagram account by default.
 
 ## Switching topics or adding a second account
 
@@ -238,7 +280,7 @@ python -m bot render --local --file content/queue/insurance/2026-11/01-deductibl
 ```
 
 ## Good to know
-- GitHub pauses scheduled workflows in repos with no activity for 60 days. Your monthly script uploads keep it active.
+- GitHub pauses its own schedule in repos with no activity for 60 days. cron-job.org keeps the bot running regardless.
 - GitHub's hourly schedule can run a little late at busy times. That's normal.
 - If anything fails, the bot messages you on Telegram with the error, and the details are under the repo's **Actions** tab.
 - `state/state.json` is the bot's memory (what's approved and posted). The workflows update it, so don't edit it by hand.
