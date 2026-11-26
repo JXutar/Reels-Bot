@@ -434,8 +434,15 @@ def visual_prompts(script: dict, profile: dict) -> list[str]:
 CHANNEL: {profile.get('description', profile['name'])}
 SCENES: {json.dumps(scenes, ensure_ascii=False)}
 Each description: one sentence showing the scene's idea with people, objects and setting.
+Avoid objects that naturally contain writing (calendars, documents, screens, signs, charts).
 The picture must contain NO text, words, numbers, signs or labels. No logos, brands or real people.
-Return JSON: {{"prompts": ["...", "..."]}} with exactly {len(scenes)} entries, in order."""
+Return JSON: {{"prompts": ["...", "..."]}} with exactly {len(scenes)} strings, in order."""
     data = _extract_json(_ask(prompt))
-    out = [str(p).strip() for p in data.get("prompts", [])]
-    return out + [""] * (len(scenes) - len(out))
+    raw = data.get("prompts", data if isinstance(data, list) else [])
+    out = []
+    for p in raw:
+        if isinstance(p, dict):  # some models return objects instead of strings
+            p = p.get("prompt") or p.get("description") or next((v for v in p.values() if isinstance(v, str)), "")
+        out.append(str(p).strip())
+    print(f"  (AI wrote {sum(1 for o in out if o)} picture descriptions)")
+    return (out + [""] * len(scenes))[:len(scenes)]
