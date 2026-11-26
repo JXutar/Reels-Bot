@@ -45,10 +45,10 @@ def validate_script(script: dict, path: Path | str = "") -> None:
         if key not in script:
             problems.append(f"missing '{key}'")
     for i, scene in enumerate(script.get("scenes", [])):
-        if not scene.get("text") or not scene.get("voice"):
-            problems.append(f"scene {i + 1} needs both 'text' and 'voice'")
-    if not 2 <= len(script.get("scenes", [])) <= 12:
-        problems.append("needs 2-12 scenes")
+        if not (scene.get("voice") or "").strip() and not (scene.get("text") or "").strip():
+            problems.append(f"scene {i + 1} needs a 'voice' line or on-screen 'text'")
+    if not 1 <= len(script.get("scenes", [])) <= 25:
+        problems.append("needs 1-25 scenes")
     if problems:
         raise SystemExit(f"Invalid script {path}: " + "; ".join(problems))
 

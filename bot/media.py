@@ -14,6 +14,8 @@ Pop-up image for a scene ("image" field):
 from __future__ import annotations
 
 import hashlib
+import re
+import time
 import os
 import random
 from pathlib import Path
@@ -193,3 +195,58 @@ def _pixabay_photo(query: str, rng: random.Random) -> Path:
     hit = rng.choice(hits[:4])
     url = hit.get("largeImageURL") or hit.get("webformatURL")
     return _download(url, CACHE / f"pixabay-photo-{hit['id']}.jpg")
+
+
+# ---------------------------------------------------------------- AI images (Cloudflare Workers AI, free daily quota)
+CF_MODEL = os.environ.get("CLOUDFLARE_IMAGE_MODEL", "@cf/black-forest-labs/flux-1-schnell")
+
+
+def ai_available() -> bool:
+    return bool(os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip() and os.environ.get("CLOUDFLARE_API_TOKEN", "").strip())
+
+
+def ai_image(prompt: str, out: Path, seed: int, steps: int = 6) -> Path:
+    """Generate one square image (~1024px) with FLUX.1 schnell on Cloudflare. Raises on failure."""
+    import base64
+
+    account = os.environ["CLOUDFLARE_ACCOUNT_ID"].strip()
+    token = os.environ["CLOUDFLARE_API_TOKEN"].strip()
+    url = f"https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{CF_MODEL}"
+    last = None
+    for attempt in range(3):
+        try:
+            r = requests.post(url, headers={"Authorization": f"Bearer {token}"}, timeout=120,
+                              json={"prompt": prompt[:2000], "steps": min(8, steps), "seed": seed + attempt})
+            if r.headers.get("content-type", "").startswith("image/"):
+                data = r.content  # some models return raw image bytes
+            else:
+                body = r.json()
+                if not body.get("success", r.status_code < 400):
+                    raise RuntimeError(f"Cloudflare: {body.get('errors') or body}")
+                data = base64.b64decode(body["result"]["image"])
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_bytes(data)
+            Image.open(out).verify()
+            return out
+        except Exception as e:
+            last = e
+            if "quota" in str(e).lower() or "4006" in str(e) or "limit" in str(e).lower():
+                break  # daily free allowance used up -> don't keep trying
+            time.sleep(2)
+    raise RuntimeError(f"AI image failed: {last}")
+
+
+def stock_photo(query: str, rng: random.Random) -> Path | None:
+    """Plain stock photo for a short query (Pixabay or Pexels), or None."""
+    words = [w for w in re.findall(r"[a-zA-Z]+", query) if len(w) > 2][:4]
+    q = " ".join(words)
+    if not q:
+        return None
+    try:
+        if _pixabay_key():
+            return _pixabay_photo(q, rng)
+        if _pexels_key():
+            return _pexels_photo(q, rng)
+    except Exception as e:
+        print(f"  (stock photo '{q}' failed: {e})")
+    return None

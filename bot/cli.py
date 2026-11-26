@@ -2,26 +2,48 @@
 
   render --local [--file X]   make mp4s on your computer only (for previewing)
   render [--remake ID|all]    (GitHub) render new scripts, host them, send to Telegram for review
-  tick                        (GitHub, hourly) read Telegram (taps, /idea, /remake), post on schedule
-  publish <id>                post one approved reel now
-  refresh-token               renew Instagram tokens (monthly workflow)
+  tick                        (GitHub, every ~30 min) read Telegram, post what's due
+  publish <id>                post one reel now
+  refresh-token               renew Instagram tokens
   check                       validate scripts and test credentials
+
+Telegram:  /idea  /script  /status  /post  /schedule  /unschedule  /remake  /help
+Buttons on each new reel:  🚀 Post now · 🗓 Schedule · ❌ Reject
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import re
 import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import config, render, state as st
+from .timeparse import describe, parse_when
 
-NEEDS_RENDER = False  # set when /idea or /remake creates work; the workflow then runs `render`
-
+NEEDS_RENDER = False  # set when /idea, /script or /remake creates work; the workflow then runs `render`
 DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+IDEA_ATTEMPTS = 3
+OPEN = ("pending_review", "approved", "scheduled", "post_now", "failed")  # not posted, not rejected
+
+HELP = ("/idea <your idea>  - AI writes + makes a reel\n"
+        "/idea story: ...  /idea general: ...  - pick the profile\n"
+        "/idea 60s: ...  - ask for a length (also: short, long)\n"
+        "/script <full script>  - keeps every scene and line you wrote (also automatic when you paste "
+        "SCENE / VO: / Text: / Visual: lines)\n"
+        "/status  - what's waiting, scheduled, posted\n"
+        "/post <id>  - post now\n"
+        "/schedule <id> <when>  - e.g. /schedule deductible fri 9pm\n"
+        "/unschedule <id>  - cancel a scheduled post (the reel is kept)\n"
+        "/remake <id> or /remake all  - re-render reels that aren't posted yet\n"
+        "Ids can be shortened to any unique part, e.g. 'deductible'.")
+
+
+def now_local() -> datetime:
+    return datetime.now(ZoneInfo(config.load_settings().get("timezone", "Asia/Kuala_Lumpur")))
 
 
 def build_caption(script: dict, profile: dict) -> str:
@@ -40,6 +62,29 @@ def all_scripts() -> list[tuple[dict, dict, Path]]:
         for path in config.queued_scripts(profile["name"]):
             found.append((config.load_script(path), profile, path))
     return found
+
+
+def _notify(text: str) -> None:
+    try:
+        from . import telegram
+        telegram.send_text(text)
+    except Exception as e:
+        print(f"(Telegram notify failed: {e}) {text}")
+
+
+def find_item(state: dict, token: str, statuses=OPEN) -> tuple[str | None, str]:
+    """Match a full or partial reel id. Returns (id, error message)."""
+    token = token.strip().lower()
+    if not token:
+        return None, "Which reel? Send /status to see ids."
+    if token in state["items"]:
+        return token, ""
+    hits = [i for i, it in state["items"].items() if token in i.lower() and it["status"] in statuses]
+    if len(hits) == 1:
+        return hits[0], ""
+    if not hits:
+        return None, f"No reel matching '{token}'. Send /status to see ids."
+    return None, f"'{token}' matches several reels: " + ", ".join(hits[:5]) + ". Use more of the id."
 
 
 # ---------------------------------------------------------------- render
@@ -67,11 +112,10 @@ def cmd_render(args) -> None:
             video = render.render(script, profile, dummy_tts=bool(os.environ.get("DUMMY_TTS")))
             hosted = storage.upload(video, script["id"])
             caption = build_caption(script, profile)
-            auto = profile.get("review", {}).get("auto_approve", False)
-            msg_id = telegram.send_for_review(video, script["id"], script, caption, auto_approved=auto)
-            st.set_status(state, script["id"], "approved" if auto else "pending_review", profile=profile["name"],
+            msg_id = telegram.send_for_review(video, script["id"], script, caption)
+            st.set_status(state, script["id"], "pending_review", profile=profile["name"],
                           telegram_message_id=msg_id, **hosted)
-            print(f"{'Auto-approved' if auto else 'Sent for review'}: {script['id']}")
+            print(f"Sent for review: {script['id']}")
         except Exception as e:
             traceback.print_exc()
             st.set_status(state, script["id"], "failed", profile=profile["name"], error=str(e)[:500])
@@ -84,12 +128,15 @@ def remake(state: dict, target: str) -> list[str]:
     from . import storage, telegram
 
     target = target.strip()
+    if target != "all":
+        item_id, _err = find_item(state, target, statuses=OPEN + ("rejected",))
+        targets = [item_id] if item_id else []
+    else:
+        targets = [i for i, it in state["items"].items() if it["status"] in OPEN]
     removed = []
-    for item_id in list(state["items"]):
+    for item_id in targets:
         item = state["items"][item_id]
         if item["status"] == "published":
-            continue
-        if target != "all" and item_id != target:
             continue
         storage.delete(item.get("public_id", ""))
         if item.get("telegram_message_id"):
@@ -99,6 +146,7 @@ def remake(state: dict, target: str) -> list[str]:
     return removed
 
 
+# ---------------------------------------------------------------- /idea and /script
 def _resolve_profile(word: str) -> dict | None:
     word = word.lower().strip()
     for profile in config.active_profiles():
@@ -108,62 +156,118 @@ def _resolve_profile(word: str) -> dict | None:
     return None
 
 
-IDEA_ATTEMPTS = 3
+def _length_word(word: str) -> int | None:
+    w = word.lower().strip()
+    if w == "short":
+        return 30
+    if w in ("medium", "normal"):
+        return 45
+    if w == "long":
+        return 75
+    m = re.fullmatch(r"(\d+(?:\.\d+)?)\s*(s|sec|secs|seconds|m|min|mins|minute|minutes)?", w)
+    if m:
+        n = float(m.group(1))
+        secs = n * 60 if (m.group(2) or "").startswith("m") else n
+        return int(max(15, min(90, secs)))
+    return None
+
+
+def parse_request(text: str) -> tuple[str, dict, int | None, str]:
+    """'/idea story 60s: a town where...' -> (mode, profile, seconds, body)."""
+    command = "script" if text.lower().startswith("/script") else "idea"
+    body = re.sub(r"^/(idea|script)\b", "", text, flags=re.I).strip()
+    profile, seconds = None, None
+    head, sep, rest = body.partition(":")
+    words = head.split()
+    if sep and 1 <= len(words) <= 3:
+        found_profile, found_len, ok = None, None, True
+        for w in words:
+            p, l = _resolve_profile(w), _length_word(w)
+            if p and not found_profile:
+                found_profile = p
+            elif l and not found_len:
+                found_len = l
+            else:
+                ok = False
+        if ok:
+            profile, seconds, body = found_profile, found_len, rest.strip()
+    elif not sep and 1 <= len(body.split()) <= 2:  # "/idea story" or "/idea story long" -> AI picks the topic
+        words = body.split()
+        p = _resolve_profile(words[0])
+        l = _length_word(words[1]) if len(words) == 2 else None
+        if p and (len(words) == 1 or l):
+            profile, seconds, body = p, l, ""
+    if profile is None:
+        default = config.load_settings().get("idea_default_profile")
+        profile = (_resolve_profile(default) if default else None) or config.active_profiles()[0]
+    from . import writer
+    mode = "script" if command == "script" or writer.looks_like_script(body) else "idea"
+    return mode, profile, seconds, body
 
 
 def handle_idea(text: str, state: dict | None = None, attempt: int = 1) -> None:
-    """'/idea story: a town where...' -> AI writes a script file into the queue.
-    If the AI is slow or down, the idea is kept and retried at the next checks (up to IDEA_ATTEMPTS)."""
+    """AI writes (idea mode) or formats (script mode) a script file into the queue.
+    If the AI is slow or down, idea mode keeps the request and retries at the next checks."""
     global NEEDS_RENDER
     from . import writer
 
-    body = text[len("/idea"):].strip()
-    profile = None
-    head, sep, rest = body.partition(":")
-    if sep and len(head.split()) == 1:
-        profile = _resolve_profile(head)
-        if profile:
-            body = rest.strip()
-    if profile is None and body and len(body.split()) == 1:
-        maybe = _resolve_profile(body)  # "/idea story" -> AI picks the topic
-        if maybe:
-            profile, body = maybe, ""
-    if profile is None:
-        default = config.load_settings().get("idea_default_profile")
-        profile = _resolve_profile(default) if default else None
-        profile = profile or config.active_profiles()[0]
-
-    if not writer.available():
-        _notify("⚠️ /idea needs an AI writer. Add a GEMINI_API_KEY secret (free), then try again.")
-        return
-    if attempt == 1:
-        _notify(f"📝 Writing a new {profile['name']} reel" + (f" about: {body}" if body else " (topic of my choice)") + "…")
+    mode, profile, seconds, body = parse_request(text)
     existing = {s["id"] for s, _p, _ in all_scripts()}
-    examples = config.queued_scripts(profile["name"])
-    example = None
-    if examples:
-        example = config.load_script(examples[-1])
-        example = {k: example[k] for k in ("title", "scenes", "caption", "hashtags") if k in example}
-    try:
-        script = writer.write_script(body, profile, existing, example)
-    except Exception as e:
-        traceback.print_exc()
-        if state is not None and attempt < IDEA_ATTEMPTS:
-            state.setdefault("idea_queue", []).append({"text": text, "attempts": attempt})
-            if attempt == 1:
-                _notify("⏳ The AI is slow right now. I'll keep your idea and try again at the next check.")
-        else:
-            _notify(f"⚠️ Couldn't write that one after {attempt} tries: {e}\nSend the /idea again later.")
-        return
+
+    if mode == "script":
+        if attempt == 1:
+            _notify(f"📜 Got your script ({profile['name']}). Keeping every scene and line as written…")
+        try:
+            script = writer.script_from_text(body, profile, existing)
+        except Exception as e:
+            traceback.print_exc()
+            _notify(f"⚠️ Couldn't read that script: {e}")
+            return
+    else:
+        if not writer.available():
+            _notify("⚠️ /idea needs an AI writer. Add a GEMINI_API_KEY secret (free), then try again.")
+            return
+        if attempt == 1:
+            what = f" about: {body}" if body else " (topic of my choice)"
+            length = f", about {seconds}s" if seconds else ""
+            _notify(f"📝 Writing a new {profile['name']} reel{length}{what}…")
+        example = None
+        examples = config.queued_scripts(profile["name"])
+        if examples:
+            ex = config.load_script(examples[-1])
+            example = {"title": ex["title"], "caption": ex.get("caption", ""),
+                       "scenes": [{k: s[k] for k in ("voice", "text") if k in s} for s in ex["scenes"]
+                                  if s.get("style") != "cta"][:6]}
+        try:
+            script = writer.write_script(body, profile, existing, example, seconds=seconds)
+        except Exception as e:
+            traceback.print_exc()
+            if state is not None and attempt < IDEA_ATTEMPTS:
+                state.setdefault("idea_queue", []).append({"text": text, "attempts": attempt})
+                if attempt == 1:
+                    _notify("⏳ The AI is slow right now. I'll keep your idea and try again at the next check.")
+            else:
+                _notify(f"⚠️ Couldn't write that one after {attempt} tries: {e}\nSend the /idea again later.")
+            return
+
     folder = config.QUEUE_DIR / profile["name"] / "ideas"
     folder.mkdir(parents=True, exist_ok=True)
     (folder / f"{script['id']}.json").write_text(json.dumps(script, ensure_ascii=False, indent=2) + "\n",
                                                  encoding="utf-8")
     NEEDS_RENDER = True
-    _notify(f"✍️ Script ready: \"{script['title']}\". Making the video now, it'll arrive here in a few minutes.")
+    n = len(script["scenes"])
+    _notify(f"✍️ Script ready: \"{script['title']}\" ({n} scenes). Making the video now, "
+            f"it'll arrive here in a few minutes.")
 
 
-# ---------------------------------------------------------------- publish
+def retry_ideas(state: dict) -> None:
+    """Ideas that failed at an earlier check get another go (before new messages are read)."""
+    queue, state["idea_queue"] = state.get("idea_queue", []), []
+    for item in queue:
+        handle_idea(item["text"], state, attempt=item.get("attempts", 1) + 1)
+
+
+# ---------------------------------------------------------------- publishing
 def _scripts_by_id() -> dict:
     return {s["id"]: (s, p) for s, p, _ in all_scripts()}
 
@@ -190,6 +294,8 @@ def publish_one(state: dict, item_id: str) -> bool:
         return False
     st.set_status(state, item_id, "published", media_id=media_id)
     storage.delete(item.get("public_id", ""))
+    if item.get("telegram_message_id"):
+        telegram.mark_message(item["telegram_message_id"], "✅ Posted")
     kind = "trial reel (non-followers only)" if ig.get("trial_reel", True) else "reel"
     extra = "\nCheck it in Instagram and tap 'Share to everyone' if it does well." \
         if ig.get("trial_reel", True) and ig.get("graduation") == "MANUAL" else ""
@@ -203,13 +309,30 @@ def cmd_publish(args) -> None:
     st.save(state)
 
 
-# ---------------------------------------------------------------- tick
-def _notify(text: str) -> None:
-    try:
-        from . import telegram
-        telegram.send_text(text)
-    except Exception as e:
-        print(f"(Telegram notify failed: {e}) {text}")
+def _queue_post_now(state: dict, item_id: str) -> None:
+    from . import telegram
+    item = state["items"][item_id]
+    st.set_status(state, item_id, "post_now")
+    item.pop("scheduled_at", None)
+    if item.get("telegram_message_id"):
+        telegram.mark_message(item["telegram_message_id"], "🚀 Posting now…",
+                              extra=[("❌ Cancel", f"reject|{item_id}")])
+
+
+def _schedule(state: dict, item_id: str, when: datetime) -> None:
+    from . import telegram
+    item = state["items"][item_id]
+    st.set_status(state, item_id, "scheduled", scheduled_at=when.isoformat())
+    if item.get("telegram_message_id"):
+        telegram.mark_message(item["telegram_message_id"], f"🗓 {describe(when)}",
+                              extra=[("🚀 Post now instead", f"postnow|{item_id}"), ("❌ Cancel", f"reject|{item_id}")])
+
+
+def _ask_when(state: dict, item_id: str) -> None:
+    state["awaiting_time"] = {"id": item_id, "since": now_local().isoformat()}
+    title = _scripts_by_id().get(item_id, ({"title": item_id}, None))[0]["title"]
+    _notify(f"🗓 When should I post \"{title}\"?\nReply with a time, e.g.  tomorrow 8pm · fri 9pm · "
+            f"28/11 20:00 · in 3 hours\n(or /cancel)")
 
 
 def handle_updates(state: dict) -> None:
@@ -218,6 +341,7 @@ def handle_updates(state: dict) -> None:
 
     allowed_chat = str(telegram.chat_id())
     updates = telegram.get_updates(state.get("telegram_offset", 0))
+    ideas: list[dict] = []  # collected, then handled after reading everything (long scripts arrive split)
     for u in updates:
         state["telegram_offset"] = u["update_id"] + 1
         if "callback_query" in u:
@@ -226,74 +350,146 @@ def handle_updates(state: dict) -> None:
                 continue
             action, _, item_id = cq.get("data", "").partition("|")
             item = state["items"].get(item_id)
-            if action not in ("approve", "reject") or not item:
+            if not item or action not in ("postnow", "schedule", "reject", "approve"):
                 telegram.answer_button(cq["id"], "Nothing to do")
                 continue
-            allowed = ("pending_review",) if action == "approve" else ("pending_review", "approved")
-            if item["status"] not in allowed:
+            if item["status"] in ("published", "rejected"):
                 telegram.answer_button(cq["id"], f"Already {item['status']}")
                 continue
-            if action == "approve":
-                st.set_status(state, item_id, "approved")
-                telegram.answer_button(cq["id"], "Approved, it'll post on the next slot")
-                telegram.mark_message(item["telegram_message_id"], "✅ Approved")
+            if action in ("postnow", "approve"):  # old 'Approve' buttons behave like Post now
+                _queue_post_now(state, item_id)
+                telegram.answer_button(cq["id"], "Posting at this check")
+            elif action == "schedule":
+                telegram.answer_button(cq["id"], "When? Reply with a time")
+                _ask_when(state, item_id)
             else:
                 st.set_status(state, item_id, "rejected")
+                item.pop("scheduled_at", None)
                 storage.delete(item.get("public_id", ""))
                 telegram.answer_button(cq["id"], "Rejected")
                 telegram.mark_message(item["telegram_message_id"], "❌ Rejected")
-        elif "message" in u:
-            msg = u["message"]
-            if str(msg.get("chat", {}).get("id")) != allowed_chat:
+            continue
+
+        msg = u.get("message")
+        if not msg or str(msg.get("chat", {}).get("id")) != allowed_chat:
+            continue
+        text = (msg.get("text") or "").strip()
+        if not text:
+            continue
+        low = text.lower()
+
+        # a long script gets split by Telegram into several messages sent within seconds -> glue them back
+        if not text.startswith("/") and ideas and msg.get("date", 0) - ideas[-1]["date"] <= 5:
+            ideas[-1]["text"] += "\n" + text
+            ideas[-1]["date"] = msg.get("date", 0)
+            continue
+
+        if low.startswith("/idea") or low.startswith("/script"):
+            ideas.append({"text": text, "date": msg.get("date", 0)})
+        elif low.startswith("/cancel"):
+            state.pop("awaiting_time", None)
+            _notify("OK, cancelled.")
+        elif low.startswith("/remake"):
+            parts = text.split(maxsplit=1)
+            if len(parts) == 2:
+                removed = remake(state, parts[1])
+                if removed:
+                    NEEDS_RENDER = True
+                    _notify(f"♻️ Remaking {len(removed)} reel(s). New versions will arrive here shortly.")
+                else:
+                    _notify("Nothing to remake with that id (posted reels can't be remade). Send /status.")
+            else:
+                _notify("Usage: /remake <id>  or  /remake all")
+        elif low.startswith("/unschedule"):
+            parts = text.split(maxsplit=1)
+            item_id, err = find_item(state, parts[1] if len(parts) == 2 else "", statuses=("scheduled", "post_now"))
+            if item_id:
+                st.set_status(state, item_id, "approved")
+                state["items"][item_id].pop("scheduled_at", None)
+                it = state["items"][item_id]
+                if it.get("telegram_message_id"):
+                    telegram.mark_message(it["telegram_message_id"], "⏸ Not scheduled",
+                                          extra=[("🚀 Post now", f"postnow|{item_id}"),
+                                                 ("🗓 Schedule", f"schedule|{item_id}")])
+                _notify(f"⏸ {item_id} won't post until you /post or /schedule it.")
+            else:
+                _notify(err)
+        elif low.startswith("/schedule"):
+            parts = text.split(maxsplit=2)
+            if len(parts) < 2:
+                _notify("Usage: /schedule <id> <when>, e.g. /schedule deductible fri 9pm")
                 continue
-            text = (msg.get("text") or "").strip()
-            if text.startswith("/idea"):
-                handle_idea(text, state)
-            elif text.startswith("/remake"):
-                parts = text.split()
-                if len(parts) == 2:
-                    removed = remake(state, parts[1])
-                    if removed:
-                        NEEDS_RENDER = True
-                        _notify(f"♻️ Remaking {len(removed)} reel(s). New versions will arrive here shortly.")
-                    else:
-                        _notify("Nothing to remake with that id (posted reels can't be remade). Send /status.")
-                else:
-                    _notify("Usage: /remake <id>  or  /remake all")
-            elif text.startswith("/status"):
-                _notify(status_report(state))
-            elif text.startswith("/post"):
-                parts = text.split()
-                if len(parts) == 2 and state["items"].get(parts[1], {}).get("status") in ("approved", "failed"):
-                    publish_one(state, parts[1])
-                else:
-                    _notify("Usage: /post <id>  (the reel must be approved). Send /status to see ids.")
-            elif text.startswith("/start") or text.startswith("/help"):
-                _notify(f"Hi! Your chat id is {msg['chat']['id']}.\n\n"
-                        "/idea <your idea>  - I write + make a reel (e.g. /idea story: a town where...)\n"
-                        "/idea story  - I pick the topic\n"
-                        "/status  - what's waiting, approved, posted\n"
-                        "/post <id>  - post an approved reel now\n"
-                        "/remake <id> or /remake all  - re-render reels that aren't posted yet")
+            item_id, err = find_item(state, parts[1])
+            if not item_id:
+                _notify(err)
+                continue
+            if len(parts) == 2:
+                _ask_when(state, item_id)
+                continue
+            when = parse_when(parts[2], now_local())
+            if not when:
+                _notify(f"I didn't understand '{parts[2]}'. Try: tomorrow 8pm, fri 9pm, 28/11 20:00, in 3 hours.")
+            elif when < now_local() - timedelta(minutes=5):
+                _notify(f"That's in the past ({describe(when)}). Pick a later time.")
+            else:
+                _schedule(state, item_id, when)
+                _notify(f"🗓 {item_id} scheduled for {describe(when)}.")
+        elif low.startswith("/post"):
+            parts = text.split(maxsplit=1)
+            item_id, err = find_item(state, parts[1] if len(parts) == 2 else "")
+            if item_id:
+                _queue_post_now(state, item_id)
+                _notify(f"🚀 Posting {item_id} now.")
+            else:
+                _notify(err)
+        elif low.startswith("/status"):
+            _notify(status_report(state))
+        elif low.startswith("/start") or low.startswith("/help"):
+            _notify(f"Hi! Your chat id is {msg['chat']['id']}.\n\n" + HELP)
+        elif not text.startswith("/") and state.get("awaiting_time"):
+            item_id = state["awaiting_time"]["id"]
+            when = parse_when(text, now_local())
+            if not when:
+                _notify(f"I didn't understand '{text}'. Try: tomorrow 8pm, fri 9pm, 28/11 20:00, in 3 hours "
+                        f"(or /cancel).")
+            elif when < now_local() - timedelta(minutes=5):
+                _notify(f"That's in the past ({describe(when)}). Pick a later time (or /cancel).")
+            elif item_id in state["items"]:
+                state.pop("awaiting_time", None)
+                _schedule(state, item_id, when)
+                _notify(f"🗓 Scheduled for {describe(when)} ✅")
+        elif not text.startswith("/"):
+            _notify("Send /help to see what I can do.")
+
+    for idea in ideas:
+        handle_idea(idea["text"], state)
 
 
 def status_report(state: dict) -> str:
-    groups: dict[str, list[str]] = {}
-    for item_id, item in state["items"].items():
-        groups.setdefault(item["status"], []).append(item_id)
-    order = ["pending_review", "approved", "failed", "published", "rejected"]
+    items = state["items"]
+
+    def by(s):
+        return [i for i, it in items.items() if it["status"] == s]
+
     lines = []
-    for s in order:
-        ids = groups.get(s, [])
-        if ids and s not in ("published", "rejected"):
-            lines.append(f"{s} ({len(ids)}):\n  " + "\n  ".join(ids))
-        elif ids:
-            lines.append(f"{s}: {len(ids)}")
-    return "\n".join(lines) or "Nothing in the queue yet."
+    if by("pending_review"):
+        lines.append(f"👀 Waiting for you ({len(by('pending_review'))}):\n  " + "\n  ".join(by("pending_review")))
+    if by("post_now"):
+        lines.append("🚀 Posting at this check:\n  " + "\n  ".join(by("post_now")))
+    sched = sorted(by("scheduled"), key=lambda i: items[i].get("scheduled_at", ""))
+    if sched:
+        lines.append("🗓 Scheduled:\n  " + "\n  ".join(
+            f"{describe(datetime.fromisoformat(items[i]['scheduled_at']))}  {i}" for i in sched))
+    if by("approved"):
+        lines.append("⏸ Ready, not scheduled (use /post or /schedule):\n  " + "\n  ".join(by("approved")))
+    if by("failed"):
+        lines.append("⚠️ Failed:\n  " + "\n  ".join(by("failed")))
+    lines.append(f"✅ Posted: {len(by('published'))}   ❌ Rejected: {len(by('rejected'))}")
+    return "\n\n".join(lines)
 
 
+# ---- optional automatic weekly posting (profile: posting: auto)
 def latest_slot(now: datetime, sch: dict) -> datetime | None:
-    """Most recent posting slot (day + hour) at or before now."""
     for back in range(0, 8):
         day = now - timedelta(days=back)
         if DAYS[day.weekday()] in sch.get("days", []):
@@ -304,7 +500,7 @@ def latest_slot(now: datetime, sch: dict) -> datetime | None:
 
 
 def _posted_in_slot(last, slot: datetime) -> int:
-    if isinstance(last, str):  # oldest format: just a date
+    if isinstance(last, str):
         last = {"date": last, "count": 1}
     if not isinstance(last, dict):
         return 0
@@ -314,25 +510,26 @@ def _posted_in_slot(last, slot: datetime) -> int:
 
 
 def due_profiles(state: dict, now: datetime) -> list[tuple[dict, datetime]]:
-    """A profile is due if its latest slot hasn't had its posts yet and we're within the catch-up window
-    (GitHub sometimes runs the hourly check many hours late)."""
     due = []
     for profile in config.active_profiles():
+        if profile.get("posting", "manual") != "auto":
+            continue
         sch = profile.get("schedule", {})
         slot = latest_slot(now, sch)
         if not slot or now - slot > timedelta(hours=sch.get("catch_up_hours", 24)):
             continue
-        last = state.get("last_publish", {}).get(profile["name"])
-        if _posted_in_slot(last, slot) < sch.get("max_per_day", 1):
+        if _posted_in_slot(state.get("last_publish", {}).get(profile["name"]), slot) < sch.get("max_per_day", 1):
             due.append((profile, slot))
     return due
 
 
-def retry_ideas(state: dict) -> None:
-    """Ideas that failed at an earlier check get another go (before new messages are read)."""
-    queue, state["idea_queue"] = state.get("idea_queue", []), []
-    for item in queue:
-        handle_idea(item["text"], state, attempt=item.get("attempts", 1) + 1)
+def due_items(state: dict, now: datetime) -> list[str]:
+    """Reels to post at this check: 'Post now' ones, then scheduled ones whose time has come."""
+    items = state["items"]
+    now_ids = [i for i, it in items.items() if it["status"] == "post_now"]
+    sched = [i for i, it in items.items() if it["status"] == "scheduled" and it.get("scheduled_at")
+             and datetime.fromisoformat(it["scheduled_at"]) <= now]
+    return now_ids + sorted(sched, key=lambda i: items[i]["scheduled_at"])
 
 
 def cmd_tick(args) -> None:
@@ -343,22 +540,25 @@ def cmd_tick(args) -> None:
     finally:
         st.save(state)
 
-    tz = ZoneInfo(config.load_settings().get("timezone", "Asia/Kuala_Lumpur"))
-    now = datetime.now(tz)
-    for profile, slot in due_profiles(state, now):
+    now = now_local()
+    for item_id in due_items(state, now):
+        publish_one(state, item_id)
+        st.save(state)
+
+    for profile, slot in due_profiles(state, now):  # only profiles with posting: auto
         approved = [(i, it) for i, it in state["items"].items()
                     if it.get("profile") == profile["name"] and it["status"] == "approved"]
         if not approved:
             continue
-        approved.sort(key=lambda x: x[1]["history"][-1]["at"])  # oldest approval first
+        approved.sort(key=lambda x: x[1]["history"][-1]["at"])
         if publish_one(state, approved[0][0]):
             count = _posted_in_slot(state.setdefault("last_publish", {}).get(profile["name"]), slot)
             state["last_publish"][profile["name"]] = {"slot": slot.strftime("%Y-%m-%dT%H:%M"),
                                                       "date": slot.strftime("%Y-%m-%d"), "count": count + 1}
         st.save(state)
 
-    pending = [i for i, it in state["items"].items() if it["status"] == "approved"]
-    print(f"Tick done at {now:%Y-%m-%d %H:%M}. Approved and waiting: {len(pending)}")
+    sched = sum(1 for it in state["items"].values() if it["status"] == "scheduled")
+    print(f"Tick done at {now:%Y-%m-%d %H:%M}. Scheduled: {sched}")
     if NEEDS_RENDER:
         print("New work queued -> rendering next.")
         out = os.environ.get("GITHUB_OUTPUT")
@@ -389,9 +589,13 @@ def cmd_check(args) -> None:
     scripts = all_scripts()
     print(f"{len(scripts)} script(s) valid.")
     if args.online:
-        from . import instagram, telegram
+        from . import instagram, media, telegram, writer
+        seen = set()
         for profile in config.active_profiles():
             ig = profile["instagram"]
+            if ig["token_secret"] in seen:
+                continue
+            seen.add(ig["token_secret"])
             token, uid = config.env(ig["token_secret"]), config.env(ig["user_id_secret"])
             print(f"[{profile['name']}] token looks like: {token[:4]}... ({len(token)} characters)")
             if " " in token or len(token) < 100:
@@ -402,10 +606,17 @@ def cmd_check(args) -> None:
             if str(me.get("user_id")) != uid.strip():
                 print(f"  ⚠️ IG_USER_ID secret is {uid}, but the token belongs to user_id {me.get('user_id')}. "
                       f"Set IG_USER_ID to {me.get('user_id')}.")
-        telegram.send_text("👋 Reels bot connected. You'll get reels to review here. Send /help for commands.")
+        telegram.send_text("👋 Reels bot connected. Send /help for commands.")
         print("Telegram OK: test message sent.")
-        from . import writer
         print(f"AI writer for /idea: {writer.available() or 'none (add GEMINI_API_KEY to use /idea)'}")
+        if media.ai_available():
+            try:
+                media.ai_image("a simple flat illustration of a sunrise", Path("/tmp/cf_test.png"), seed=1, steps=4)
+                print("AI pictures (Cloudflare): OK")
+            except Exception as e:
+                print(f"AI pictures (Cloudflare): FAILED - {e}")
+        else:
+            print("AI pictures: not set up (add CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN); stock photos used")
 
 
 def main() -> None:
@@ -424,7 +635,7 @@ def main() -> None:
     p.set_defaults(func=cmd_publish)
     sub.add_parser("refresh-token").set_defaults(func=cmd_refresh_token)
     c = sub.add_parser("check")
-    c.add_argument("--online", action="store_true", help="also test Instagram + Telegram credentials")
+    c.add_argument("--online", action="store_true", help="also test Instagram, Telegram, AI writer and pictures")
     c.set_defaults(func=cmd_check)
     args = parser.parse_args()
     args.func(args)

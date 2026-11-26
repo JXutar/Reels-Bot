@@ -42,8 +42,11 @@ def chunk_words(words: list[tuple[str, float, float]], max_words: int = 3, max_c
 
 
 def write_ass(scene_words: list[list[tuple[str, float, float]]], total: float, style: dict, out: Path,
-              caption_y: int = 1180, handle: str = "") -> Path:
-    """scene_words: per scene, a list of (word, start, end) in *global* seconds."""
+              caption_y: int = 1180, handle: str = "", handle_y: int = 1540,
+              titles: list[tuple[str, float, float, str]] | None = None, title_y: int = 320) -> Path:
+    """scene_words: per scene, a list of (word, start, end) in *global* seconds.
+    titles: optional (text, start, end, kind) per scene; kind "title" = headline above the picture,
+            "card" = big centred text (for silent scenes such as an end card). *word* = accent colour."""
     accent = _ass_color(style.get("accent", "#F5B942"))
     white = _ass_color(style.get("text", "#FFFFFF"))
     muted = _ass_color(style.get("muted", "#9FB3C8"), alpha=0x30)
@@ -60,6 +63,8 @@ def write_ass(scene_words: list[list[tuple[str, float, float]]], total: float, s
         "Alignment, MarginL, MarginR, MarginV, Encoding",
         f"Style: Cap,{font},{size},{white},{white},&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,7,4,5,80,80,0,1",
         f"Style: Handle,Inter Medium,36,{muted},{muted},&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,5,40,40,0,1",
+        f"Style: Title,{font},{int(style.get('title_size', 76))},{white},{white},&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,6,3,5,70,70,0,1",
+        f"Style: Card,{font},{int(style.get('card_size', 84))},{white},{white},&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,6,3,5,90,90,0,1",
         "", "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
     ]
@@ -82,7 +87,28 @@ def write_ass(scene_words: list[list[tuple[str, float, float]]], total: float, s
                 text = f"{{\\pos(540,{caption_y})}}{pop}" + " ".join(parts)
                 lines.append(f"Dialogue: 1,{_ts(show_from)},{_ts(show_to)},Cap,,0,0,0,,{text}")
 
+    for text, start, end, kind in titles or []:
+        if not text:
+            continue
+        body = _highlight(_escape(text.upper() if upper and kind == "title" else text), accent)
+        if kind == "card":
+            lines.append(f"Dialogue: 2,{_ts(start)},{_ts(end)},Card,,0,0,0,,{{\\pos(540,900)\\fad(250,200)}}{body}")
+        else:
+            lines.append(f"Dialogue: 2,{_ts(start)},{_ts(end)},Title,,0,0,0,,"
+                         f"{{\\pos(540,{title_y})\\fad(200,150)\\fscx90\\fscy90\\t(0,180,\\fscx100\\fscy100)}}{body}")
     if handle:
-        lines.append(f"Dialogue: 0,{_ts(0)},{_ts(total)},Handle,,0,0,0,,{{\\pos(540,1540)}}{_escape(handle)}")
+        lines.append(f"Dialogue: 0,{_ts(0)},{_ts(total)},Handle,,0,0,0,,{{\\pos(540,{handle_y})}}{_escape(handle)}")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return out
+
+
+def _highlight(text: str, accent: str) -> str:
+    """*word* -> accent colour (ASS override tags)."""
+    out, on = [], False
+    for part in text.split("*"):
+        if on and part:
+            out.append(f"{{\\c{accent}}}{part}{{\\r}}")
+        else:
+            out.append(part)
+        on = not on
+    return "".join(out)

@@ -1,10 +1,7 @@
 """Review on your phone: the bot sends each new reel with Approve / Reject buttons.
 
-Commands you can send the bot:
-  /idea <idea>  AI writes the script, the bot makes the reel and sends it here
-  /status       what's waiting, approved, and posted
-  /post <id>    post an approved reel right now (skips the schedule)
-  /remake <id>  re-render a reel that isn't posted yet (or /remake all)
+Each new reel arrives with buttons:  🚀 Post now · 🗓 Schedule · ❌ Reject
+Commands: /idea /script /status /post /schedule /unschedule /remake /help (see cli.HELP)
 """
 from __future__ import annotations
 
@@ -35,17 +32,14 @@ def send_text(text: str) -> None:
     _call("sendMessage", chat_id=chat_id(), text=text[:4000])
 
 
-def send_for_review(video: Path, item_id: str, script: dict, caption_text: str, auto_approved: bool = False) -> int:
+def send_for_review(video: Path, item_id: str, script: dict, caption_text: str) -> int:
     import json
 
-    if auto_approved:
-        keyboard = {"inline_keyboard": [[{"text": "❌ Cancel (don't post)", "callback_data": f"reject|{item_id}"}]]}
-        head = "🎬 Auto-approved, posts on the next slot"
-    else:
-        keyboard = {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"approve|{item_id}"},
-                                         {"text": "❌ Reject", "callback_data": f"reject|{item_id}"}]]}
-        head = "🎬 New reel to review"
-    preview = f"{head}\n{script['title']}\nID: {item_id}\n\n{caption_text}"
+    keyboard = {"inline_keyboard": [[{"text": "🚀 Post now", "callback_data": f"postnow|{item_id}"},
+                                     {"text": "🗓 Schedule", "callback_data": f"schedule|{item_id}"},
+                                     {"text": "❌ Reject", "callback_data": f"reject|{item_id}"}]]}
+    n = len(script.get("scenes", []))
+    preview = f"🎬 New reel: {script['title']}\nID: {item_id}  ·  {n} scenes\n\n{caption_text}"
     with open(video, "rb") as f:
         msg = _call("sendVideo", files={"video": f}, chat_id=chat_id(), caption=preview[:1000],
                     supports_streaming="true", reply_markup=json.dumps(keyboard))
@@ -63,9 +57,13 @@ def answer_button(callback_id: str, text: str) -> None:
         pass  # old buttons can't be answered; harmless
 
 
-def mark_message(message_id: int, note: str) -> None:
+def mark_message(message_id: int, note: str, extra: list[tuple[str, str]] | None = None) -> None:
+    """Replace a reel's buttons with a status label (plus optional action buttons)."""
+    rows = [[{"text": note, "callback_data": "noop|-"}]]
+    if extra:
+        rows.append([{"text": t, "callback_data": d} for t, d in extra])
     try:
         _call("editMessageReplyMarkup", chat_id=chat_id(), message_id=message_id,
-              reply_markup={"inline_keyboard": [[{"text": note, "callback_data": "noop|-"}]]})
+              reply_markup={"inline_keyboard": rows})
     except RuntimeError:
         pass
