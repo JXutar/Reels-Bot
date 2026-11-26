@@ -177,7 +177,13 @@ def _scene_picture(script: dict, scene: dict, i: int, profile: dict, work: Path,
         path = ASSETS_DIR / "images" / spec[5:].strip()
         if path.exists():
             return path, "your image"
-    prompt = clean_visual(scene.get("visual") or scene.get("_auto_visual") or scene.get("image") or "")
+    prompt = clean_visual(scene.get("visual") or scene.get("_auto_visual") or "")
+    if not prompt and scene.get("image"):
+        prompt = f"an illustration of {clean_visual(scene['image'])}"
+    if not prompt:  # last resort: draw the scene's idea (described, never written)
+        idea = clean_visual((scene.get("text") or scene.get("voice") or "").replace("*", ""))
+        prompt = f"a simple symbolic illustration that represents the idea: {idea}" if idea else \
+            "a calm abstract illustration"
     if prompt and media.ai_available():
         full = prompt
         if script.get("character") and script["character"].lower() not in prompt.lower():
@@ -187,14 +193,27 @@ def _scene_picture(script: dict, scene: dict, i: int, profile: dict, work: Path,
             full += f". Style: {style}"
         full += ". " + NO_TEXT
         seed = int(hashlib.md5(script["id"].encode()).hexdigest()[:8], 16) % 2_000_000_000
-        try:
-            return media.ai_image(full, work / f"ai{i:02d}.png", seed=seed, steps=int(vis_cfg.get("steps", 6))), "AI"
-        except Exception as e:
-            print(f"  (scene {i + 1}: AI image failed, using stock instead: {e})")
+        for attempt in range(2):
+            try:
+                path = media.ai_image(full if attempt == 0 else full + " Bright, colourful, clearly visible subject.",
+                                      work / f"ai{i:02d}.png", seed=seed + attempt, steps=int(vis_cfg.get("steps", 6)))
+            except Exception as e:
+                print(f"  (scene {i + 1}: AI image failed, using stock instead: {e})")
+                break
+            if not _looks_blank(path):
+                return path, "AI"
+            print(f"  (scene {i + 1}: AI picture came back blank, retrying)")
     stock = media.stock_photo(scene.get("image") or prompt, rng)
     if stock:
         return stock, "stock"
     return None, "none"
+
+
+def _looks_blank(path: Path) -> bool:
+    from PIL import ImageStat
+    with Image.open(path) as im:
+        st = ImageStat.Stat(im.convert("L").resize((64, 64)))
+    return st.stddev[0] < 6 or st.mean[0] < 12
 
 
 def clean_visual(text: str) -> str:
@@ -210,10 +229,12 @@ def _prepare_frames(pic: Path | None, style: dict, work: Path, i: int, last_bg: 
     """Make the blurred full-screen background and the square picture (or reuse the last background)."""
     bg_path, sq_path = work / f"bg{i:02d}.png", work / f"sq{i:02d}.png"
     if pic is None:
-        if last_bg is not None:
-            shutil.copy(last_bg, bg_path)
+        clean_prev = last_bg.with_name(last_bg.stem + "_clean.png") if last_bg is not None else None
+        if clean_prev is not None and clean_prev.exists():
+            shutil.copy(clean_prev, bg_path)
         else:
             slides._background(style).convert("RGB").save(bg_path)
+        shutil.copy(bg_path, bg_path.with_name(bg_path.stem + "_clean.png"))
         return bg_path, None
     img = Image.open(pic).convert("RGB")
     w, h = img.size
@@ -226,6 +247,7 @@ def _prepare_frames(pic: Path | None, style: dict, work: Path, i: int, last_bg: 
     left, top = (bg.width - 1080) // 2, (bg.height - 1920) // 2
     bg = bg.crop((left, top, left + 1080, top + 1920)).filter(ImageFilter.GaussianBlur(40))
     bg = Image.blend(bg, Image.new("RGB", bg.size, (0, 0, 0)), 0.45)
+    bg.save(bg_path.with_name(bg_path.stem + "_clean.png"))  # shadow-free copy for text-only scenes
     # soft shadow under where the picture sits
     shadow = Image.new("L", (1080, 1920), 0)
     x0 = (1080 - FRAME) // 2
