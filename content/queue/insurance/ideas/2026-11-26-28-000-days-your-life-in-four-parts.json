@@ -1,0 +1,107 @@
+{
+  "id": "2026-11-26-28-000-days-your-life-in-four-parts",
+  "profile": "insurance",
+  "title": "28,000 Days: Your Life in Four Parts",
+  "mode": "script",
+  "scenes": [
+    {
+      "voice": "Your salary has to pay for twice as many days as you'll ever work.",
+      "text": "Your salary pays for 2x your working days",
+      "visual": "A formal document resting on a wooden desk with a calendar flipping rapidly in the soft-focus background.",
+      "style": "hook",
+      "image": "payslip calendar"
+    },
+    {
+      "voice": "You'll live about 28,000 days. But you'll only get paid for half of them.",
+      "text": "28,000 days",
+      "visual": "A massive mechanical odometer with blurred spinning digits in a dimly lit minimalist studio.",
+      "image": "mechanical counter"
+    },
+    {
+      "voice": "Let's split a life into four parts.",
+      "text": "Your life in 4 parts",
+      "visual": "A long glowing timeline divided evenly into four distinct rectangular blocks.",
+      "image": "timeline blocks"
+    },
+    {
+      "voice": "Zero to twenty: you're growing up and studying. No income.",
+      "text": "0–20: No income",
+      "visual": "The first block of a timeline illuminated brightly with colorful toy blocks and a small school bag nearby.",
+      "image": "childhood school"
+    },
+    {
+      "voice": "Twenty to forty: you start earning. First job, first car, maybe a first home and a family.",
+      "text": "20–40: Earning",
+      "visual": "The second block of a timeline glowing with miniature icons representing a briefcase, car, and house.",
+      "image": "career icons"
+    },
+    {
+      "voice": "Forty to sixty: you earn more, upgrade more, and your kids grow up.",
+      "text": "40–60: Earning",
+      "visual": "The third block of a timeline illuminated with a rising bar chart and a graduation cap icon.",
+      "image": "growth chart"
+    },
+    {
+      "voice": "Sixty to eighty: most of us stop working and live on what we saved.",
+      "text": "60–80: Little or no income",
+      "visual": "The final block of a timeline glowing softly with a ceramic piggy bank resting on a wooden surface.",
+      "image": "retirement bank"
+    },
+    {
+      "voice": "So about 14,000 working days have to pay for all 28,000. For you, and for your family.",
+      "text": "14,000 days pay for 28,000",
+      "visual": "A complete four-part timeline where only the two middle sections glow with a warm golden light.",
+      "image": "timeline glow"
+    },
+    {
+      "voice": "That raises four questions.",
+      "text": "4 questions",
+      "visual": "A minimalist dark background with subtle moody lighting and a dramatic dip in ambient brightness.",
+      "image": "dark mood"
+    },
+    {
+      "voice": "One: if you get sick, will your hard-earned money go to hospital bills instead of your future?",
+      "text": "1. If you get sick?",
+      "visual": "A medical symbol glowing softly beside a leather wallet with loose metallic coins spilling out.",
+      "image": "hospital coins"
+    },
+    {
+      "voice": "Two: if you can't work, does your income stop too?",
+      "text": "2. If you can't work?",
+      "visual": "A digital financial graph showing a sudden steep drop in the green income line to zero.",
+      "image": "income drop"
+    },
+    {
+      "voice": "Three: will your kids get the education you want for them?",
+      "text": "3. Your kids' education?",
+      "visual": "A graduation cap resting neatly on top of a glowing glass jar filled with small coins.",
+      "image": "education savings"
+    },
+    {
+      "voice": "Four: will you retire comfortably, or just retire?",
+      "text": "4. Your retirement?",
+      "visual": "A split-screen composition contrasting a full ceramic piggy bank with a nearly empty one.",
+      "image": "piggy bank"
+    },
+    {
+      "voice": "Most people can't tick all four. That's normal. Knowing which one you can't answer is the first step.",
+      "text": "Which can you tick?",
+      "visual": "A clean digital checklist interface with some items checked and others left completely empty.",
+      "image": "checklist items"
+    },
+    {
+      "voice": "",
+      "text": "For general education only. Not financial advice.",
+      "visual": "A minimal, elegant end card with soft neutral lighting and no text or graphics.",
+      "hold": 3.0,
+      "image": "minimalist background"
+    }
+  ],
+  "caption": "Your salary has to cover twice as many days as you'll ever work.\nUnderstanding the four phases of life helps you plan ahead.\n📊",
+  "hashtags": [
+    "#insurance",
+    "#financialliteracy",
+    "#personalfinance",
+    "#lifeplanning"
+  ]
+}

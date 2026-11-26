@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075855,
+  "telegram_offset": 182075857,
   "items": {
     "2026-11-02-waiting-period": {
       "history": [
@@ -145,13 +145,31 @@
         {
           "status": "pending_review",
           "at": "2026-11-26T08:57:16+00:00"
+        },
+        {
+          "status": "scheduled",
+          "at": "2026-11-26T09:09:49+00:00"
+        }
+      ],
+      "status": "scheduled",
+      "profile": "insurance",
+      "telegram_message_id": 76,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795683432/reels-bot/2026-11-03-term-vs-whole-life.mp4",
+      "public_id": "reels-bot/2026-11-03-term-vs-whole-life",
+      "scheduled_at": "2026-11-26T20:09:49.309308+08:00"
+    },
+    "2026-11-26-28-000-days-your-life-in-four-parts": {
+      "history": [
+        {
+          "status": "pending_review",
+          "at": "2026-11-26T09:15:28+00:00"
         }
       ],
       "status": "pending_review",
       "profile": "insurance",
-      "telegram_message_id": 76,
-      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795683432/reels-bot/2026-11-03-term-vs-whole-life.mp4",
-      "public_id": "reels-bot/2026-11-03-term-vs-whole-life"
+      "telegram_message_id": 84,
+      "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795684523/reels-bot/2026-11-26-28-000-days-your-life-in-four-parts.mp4",
+      "public_id": "reels-bot/2026-11-26-28-000-days-your-life-in-four-parts"
     }
   },
   "last_publish": {
@@ -161,9 +179,5 @@
       "count": 1
     }
   },
-  "idea_queue": [],
-  "awaiting_time": {
-    "id": "2026-11-03-term-vs-whole-life",
-    "since": "2026-11-26T17:06:15.857835+08:00"
-  }
+  "idea_queue": []
 }
