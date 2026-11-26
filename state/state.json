@@ -1,5 +1,5 @@
 {
-  "telegram_offset": 182075839,
+  "telegram_offset": 182075844,
   "items": {
     "2026-11-01-deductible": {
       "history": [
@@ -106,9 +106,13 @@
         {
           "status": "pending_review",
           "at": "2026-11-25T05:02:17+00:00"
+        },
+        {
+          "status": "rejected",
+          "at": "2026-11-26T02:30:37+00:00"
         }
       ],
-      "status": "pending_review",
+      "status": "rejected",
       "profile": "insurance",
       "telegram_message_id": 45,
       "video_url": "https://res.cloudinary.com/hqcrozwm/video/upload/v1795582931/reels-bot/2026-11-25-what-s-the-real-difference-in-private-ho.mp4",
