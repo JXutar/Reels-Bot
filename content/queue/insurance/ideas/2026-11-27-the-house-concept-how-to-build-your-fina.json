@@ -1,0 +1,114 @@
+{
+  "id": "2026-11-27-the-house-concept-how-to-build-your-fina",
+  "profile": "insurance",
+  "title": "The House Concept: How to Build Your Finances",
+  "mode": "script",
+  "scenes": [
+    {
+      "voice": "Most people build their finances like a house with no foundation. Then one bad wind takes everything.",
+      "text": "Is your money built on legs?",
+      "visual": "A house with no stilts tipping over in a strong wind, 3D icon style, no people",
+      "style": "hook",
+      "image": "house wind collapse"
+    },
+    {
+      "voice": "Think of your finances like building a house on stilts. You don't start from the roof. You start from the legs.",
+      "text": "Start from the foundation",
+      "visual": "Empty plot of land with a dotted outline of a stilt house, 3D icon style, no people",
+      "image": "empty land blueprint"
+    },
+    {
+      "voice": "The house stands on four legs.",
+      "text": "4 legs",
+      "visual": "A house on four sturdy stilts, 3D icon style, no people",
+      "image": "house on stilts"
+    },
+    {
+      "voice": "One: if you pass away while you're still earning, is your family left with something?",
+      "text": "1. Life",
+      "visual": "Stilt house, first stilt glowing gold, red heart icon, 3D icon style, no people",
+      "image": "gold stilt heart"
+    },
+    {
+      "voice": "Two: if an accident stops you from working, where does your income come from?",
+      "text": "2. Accident",
+      "visual": "Stilt house, second stilt glowing gold, bandage icon, 3D icon style, no people",
+      "image": "gold stilt bandage"
+    },
+    {
+      "voice": "Three: if a serious illness stops you from working, where does your income come from?",
+      "text": "3. Illness",
+      "visual": "Stilt house, third stilt glowing gold, thermometer icon, 3D icon style, no people",
+      "image": "gold stilt thermometer"
+    },
+    {
+      "voice": "Four: whether it's an accident or illness, the hospital bill comes first. Who pays it?",
+      "text": "4. Hospital bills",
+      "visual": "Stilt house, fourth stilt glowing gold, hospital icon, 3D icon style, no people",
+      "image": "gold stilt hospital"
+    },
+    {
+      "voice": "You could save for each one in the bank. But what if you've saved 20,000 and the bill is 50,000?",
+      "text": "Saved RM20k. Bill RM50k.",
+      "visual": "Four piggy banks under a stilt house, 3D icon style, no people",
+      "pause_after": 1.5,
+      "image": "piggy banks house"
+    },
+    {
+      "voice": "Saving on your own is like taking the stairs to the 20th floor. If something happens at the 8th floor, you're stuck there.",
+      "text": "Stuck at floor 8",
+      "visual": "Tall staircase into the clouds, a backpack left on a landing halfway, 3D icon style, no people",
+      "image": "staircase clouds"
+    },
+    {
+      "voice": "Protection is the lift beside the stairs. When you can't climb any further, it takes you straight to the top.",
+      "text": "Protection = the lift",
+      "visual": "Glass lift shooting up beside a tall staircase, 3D icon style, no people",
+      "image": "glass lift staircase"
+    },
+    {
+      "voice": "Once the legs are strong, then you build the body of the house: long-term savings.",
+      "text": "Then: savings",
+      "visual": "Stilt house with brick walls being built on top, 3D icon style, no people",
+      "image": "building house walls"
+    },
+    {
+      "voice": "Mainly for two things: your kids' education, and your own retirement.",
+      "text": "Education + Retirement",
+      "visual": "Graduation cap and rocking chair inside a cosy house, 3D icon style, no people",
+      "image": "graduation cap chair"
+    },
+    {
+      "voice": "Why legs first? Because if you save without them, one bad wind can send all your savings straight to the hospital.",
+      "text": "Legs first. Always.",
+      "visual": "House without stilts falling in the wind, coins pouring toward a hospital, 3D icon style, no people",
+      "image": "house falling coins"
+    },
+    {
+      "voice": "Only when the legs and the body are solid do you add the roof: investing. Invest before that, and you're gambling with your family's future.",
+      "text": "Last: investing",
+      "visual": "Roof being lowered onto a finished stilt house, 3D icon style, no people",
+      "image": "roof stilt house"
+    },
+    {
+      "voice": "Legs. Body. Roof. In that order. Which part of your house is still missing?",
+      "text": "Legs → Body → Roof",
+      "visual": "Complete stilt house standing steady in the wind, blue sky, 3D icon style, no people",
+      "image": "steady stilt house"
+    },
+    {
+      "voice": "",
+      "text": "For general education only. Not financial advice.",
+      "hold": 3.0,
+      "visual": "Disclaimer screen with a clean modern background, 3D icon style, no people",
+      "image": "clean background"
+    }
+  ],
+  "caption": "Most people build their finances upside down.\nStart with the foundation before you invest.",
+  "hashtags": [
+    "#insurance",
+    "#personalfinance",
+    "#financialeducation",
+    "#moneytips"
+  ]
+}
